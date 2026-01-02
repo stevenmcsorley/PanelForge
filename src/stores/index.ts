@@ -9,3 +9,5 @@ export {
   createDefaultRadialSegmentWidget,
 } from './widgetStore';
 export { useSensorStore } from './sensorStore';
+export { useFoundryStore } from './foundryStore';
+

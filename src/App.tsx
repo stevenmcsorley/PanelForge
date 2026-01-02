@@ -13,14 +13,16 @@ import {
   SensorPanel,
   ExportPanel,
 } from '@/components/editor';
+import { GaugeFoundry } from '@/components/foundry';
 import { useKeyboardShortcuts } from '@/hooks';
 import { sensorEngine } from '@/engine';
-import { useCanvasStore } from '@/stores';
+import { useCanvasStore, useFoundryStore } from '@/stores';
 import './App.css';
 
 const App: React.FC = () => {
   const stageRef = useRef<Konva.Stage>(null);
   const { resolution, zoom, setZoom, resetView } = useCanvasStore();
+  const { openFoundry } = useFoundryStore();
 
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
@@ -42,6 +44,9 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
+      {/* Gauge Foundry Modal */}
+      <GaugeFoundry />
+
       {/* Header */}
       <header className="app-header">
         <div className="app-title">
@@ -49,6 +54,14 @@ const App: React.FC = () => {
           <span>PanelForge</span>
         </div>
         <div className="app-subtitle">AIDA64 SensorPanel Designer</div>
+
+        {/* Tools Menu */}
+        <div className="app-tools">
+          <button className="app-tool-btn" onClick={openFoundry} title="Vector Gauge Foundry">
+            ⚙️ Gauge Foundry
+          </button>
+        </div>
+
         <div className="app-zoom">
           <button onClick={() => setZoom(zoom - 0.25)} disabled={zoom <= 0.25}>
             -
@@ -108,3 +121,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
