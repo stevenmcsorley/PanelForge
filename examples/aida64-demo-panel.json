@@ -1,0 +1,1242 @@
+{
+  "version": "1.0.0",
+  "name": "AIDA64 Primitives Demo",
+  "description": "Demonstrates AIDA64-native animation techniques: rotating images, masked images, and visibility rules",
+  "resolution": {
+    "width": 800,
+    "height": 480,
+    "label": "800x480"
+  },
+  "backgroundColor": "#0a0a0a",
+  "backgroundImage": null,
+  "showGrid": false,
+  "gridSize": 10,
+  "aida64Settings": {
+    "compatibilityMode": true,
+    "pixelPerfect": true,
+    "showDeprecationWarnings": true
+  },
+  "widgets": [
+    {
+      "id": "title-main",
+      "type": "text",
+      "x": 20,
+      "y": 15,
+      "zIndex": 0,
+      "locked": false,
+      "visible": true,
+      "name": "Panel Title",
+      "text": "AIDA64 PRIMITIVES DEMO",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 18,
+      "fontColor": "#0088ff",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 300,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "section-needle",
+      "type": "text",
+      "x": 40,
+      "y": 55,
+      "zIndex": 1,
+      "locked": false,
+      "visible": true,
+      "name": "Needle Section Label",
+      "text": "ROTATING NEEDLE (ImageTransform)",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 250,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "cpu-needle-bg",
+      "type": "image",
+      "x": 40,
+      "y": 70,
+      "zIndex": 2,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Gauge Background",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Ccircle cx='70' cy='70' r='65' fill='none' stroke='%23333' stroke-width='8'/%3E%3Cpath d='M70 70 L20 70' stroke='%23222' stroke-width='2'/%3E%3Cpath d='M70 70 L120 70' stroke='%23222' stroke-width='2'/%3E%3Cpath d='M70 70 L70 20' stroke='%23222' stroke-width='2'/%3E%3Ctext x='70' y='125' text-anchor='middle' fill='%23444' font-size='10'>0</text%3E%3Ctext x='125' y='75' text-anchor='middle' fill='%23444' font-size='10'>50</text%3E%3Ctext x='70' y='25' text-anchor='middle' fill='%23444' font-size='10'>100</text%3E%3C/svg%3E",
+      "width": 140,
+      "height": 140,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "cpu-needle",
+      "type": "image_transform",
+      "x": 110,
+      "y": 85,
+      "zIndex": 10,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Needle",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='8' viewBox='0 0 60 8'%3E%3Cpolygon points='0,4 55,0 55,8' fill='%23ff4444'/%3E%3Ccircle cx='55' cy='4' r='4' fill='%23ff6666'/%3E%3C/svg%3E",
+      "width": 60,
+      "height": 8,
+      "pivotX": 55,
+      "pivotY": 4,
+      "sensorBinding": "cpu_load",
+      "minValue": 0,
+      "maxValue": 100,
+      "minAngle": -135,
+      "maxAngle": 135,
+      "clampValue": true,
+      "smoothingFactor": 0.15,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "cpu-needle-value",
+      "type": "text",
+      "x": 70,
+      "y": 170,
+      "zIndex": 11,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Needle Value",
+      "text": "",
+      "sensorBinding": "cpu_load",
+      "format": "{value|round}%",
+      "fontFamily": "Consolas",
+      "fontSize": 16,
+      "fontColor": "#ff4444",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 60,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "cpu-needle-label",
+      "type": "text",
+      "x": 70,
+      "y": 190,
+      "zIndex": 12,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Label",
+      "text": "CPU LOAD",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 60,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "section-masked",
+      "type": "text",
+      "x": 250,
+      "y": 55,
+      "zIndex": 1,
+      "locked": false,
+      "visible": true,
+      "name": "Masked Section Label",
+      "text": "PROGRESS BARS (MaskedImage)",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 250,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "gpu-bar-bg",
+      "type": "image",
+      "x": 250,
+      "y": 75,
+      "zIndex": 20,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Bar Background",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24'%3E%3Crect x='0' y='0' width='200' height='24' rx='4' fill='%23222'/%3E%3C/svg%3E",
+      "width": 200,
+      "height": 24,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "gpu-bar-fill",
+      "type": "masked_image",
+      "x": 252,
+      "y": 77,
+      "zIndex": 21,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Bar Fill",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='196' height='20' viewBox='0 0 196 20'%3E%3Cdefs%3E%3ClinearGradient id='gpuGrad' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2300ff66'/%3E%3Cstop offset='60%25' stop-color='%23ffaa00'/%3E%3Cstop offset='100%25' stop-color='%23ff3333'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='196' height='20' rx='2' fill='url(%23gpuGrad)'/%3E%3C/svg%3E",
+      "width": 196,
+      "height": 20,
+      "sensorBinding": "gpu_load",
+      "minValue": 0,
+      "maxValue": 100,
+      "maskDirection": "left_to_right",
+      "showInactivePortion": true,
+      "inactiveOpacity": 0.15,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "gpu-bar-value",
+      "type": "text",
+      "x": 460,
+      "y": 77,
+      "zIndex": 22,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Bar Value",
+      "text": "",
+      "sensorBinding": "gpu_load",
+      "format": "{value|round}%",
+      "fontFamily": "Consolas",
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 50,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "gpu-bar-label",
+      "type": "text",
+      "x": 250,
+      "y": 103,
+      "zIndex": 23,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Label",
+      "text": "GPU LOAD",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 80,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "ram-bar-bg",
+      "type": "image",
+      "x": 250,
+      "y": 125,
+      "zIndex": 24,
+      "locked": false,
+      "visible": true,
+      "name": "RAM Bar Background",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24'%3E%3Crect x='0' y='0' width='200' height='24' rx='4' fill='%23222'/%3E%3C/svg%3E",
+      "width": 200,
+      "height": 24,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "ram-bar-fill",
+      "type": "masked_image",
+      "x": 252,
+      "y": 127,
+      "zIndex": 25,
+      "locked": false,
+      "visible": true,
+      "name": "RAM Bar Fill",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='196' height='20' viewBox='0 0 196 20'%3E%3Crect x='0' y='0' width='196' height='20' rx='2' fill='%2300aaff'/%3E%3C/svg%3E",
+      "width": 196,
+      "height": 20,
+      "sensorBinding": "ram_usage",
+      "minValue": 0,
+      "maxValue": 100,
+      "maskDirection": "left_to_right",
+      "showInactivePortion": true,
+      "inactiveOpacity": 0.2,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "ram-bar-value",
+      "type": "text",
+      "x": 460,
+      "y": 127,
+      "zIndex": 26,
+      "locked": false,
+      "visible": true,
+      "name": "RAM Bar Value",
+      "text": "",
+      "sensorBinding": "ram_usage",
+      "format": "{value|round}%",
+      "fontFamily": "Consolas",
+      "fontSize": 14,
+      "fontColor": "#00aaff",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 50,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "ram-bar-label",
+      "type": "text",
+      "x": 250,
+      "y": 153,
+      "zIndex": 27,
+      "locked": false,
+      "visible": true,
+      "name": "RAM Label",
+      "text": "MEMORY USAGE",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 100,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "section-visibility",
+      "type": "text",
+      "x": 540,
+      "y": 55,
+      "zIndex": 1,
+      "locked": false,
+      "visible": true,
+      "name": "Visibility Section Label",
+      "text": "LED SEGMENTS (Visibility Rules)",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 220,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "temp-led-1",
+      "type": "text",
+      "x": 555,
+      "y": 75,
+      "zIndex": 30,
+      "locked": false,
+      "visible": true,
+      "name": "Temp LED 1 (0-20)",
+      "text": "|||",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "fontColor": "#00ff00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 30,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 0
+      }
+    },
+
+    {
+      "id": "temp-led-2",
+      "type": "text",
+      "x": 585,
+      "y": 75,
+      "zIndex": 31,
+      "locked": false,
+      "visible": true,
+      "name": "Temp LED 2 (20-40)",
+      "text": "|||",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "fontColor": "#44ff00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 30,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 20
+      }
+    },
+
+    {
+      "id": "temp-led-3",
+      "type": "text",
+      "x": 615,
+      "y": 75,
+      "zIndex": 32,
+      "locked": false,
+      "visible": true,
+      "name": "Temp LED 3 (40-55)",
+      "text": "|||",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "fontColor": "#88ff00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 30,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 40
+      }
+    },
+
+    {
+      "id": "temp-led-4",
+      "type": "text",
+      "x": 645,
+      "y": 75,
+      "zIndex": 33,
+      "locked": false,
+      "visible": true,
+      "name": "Temp LED 4 (55-70)",
+      "text": "|||",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "fontColor": "#ffaa00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 30,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 55
+      }
+    },
+
+    {
+      "id": "temp-led-5",
+      "type": "text",
+      "x": 675,
+      "y": 75,
+      "zIndex": 34,
+      "locked": false,
+      "visible": true,
+      "name": "Temp LED 5 (70-85)",
+      "text": "|||",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "fontColor": "#ff6600",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 30,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 70
+      }
+    },
+
+    {
+      "id": "temp-led-6",
+      "type": "text",
+      "x": 705,
+      "y": 75,
+      "zIndex": 35,
+      "locked": false,
+      "visible": true,
+      "name": "Temp LED 6 (85+)",
+      "text": "|||",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "fontColor": "#ff0000",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 30,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 85
+      }
+    },
+
+    {
+      "id": "temp-led-value",
+      "type": "text",
+      "x": 555,
+      "y": 105,
+      "zIndex": 36,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Temp Value",
+      "text": "",
+      "sensorBinding": "cpu_temp",
+      "format": "{value|round}C",
+      "fontFamily": "Consolas",
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 60,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "temp-led-label",
+      "type": "text",
+      "x": 620,
+      "y": 105,
+      "zIndex": 37,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Temp Label",
+      "text": "CPU TEMP",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 80,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "temp-warning",
+      "type": "text",
+      "x": 555,
+      "y": 130,
+      "zIndex": 38,
+      "locked": false,
+      "visible": true,
+      "name": "High Temp Warning",
+      "text": "! HIGH TEMP !",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 14,
+      "fontColor": "#ff3333",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 120,
+      "visibilityRule": {
+        "type": "gte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 70
+      }
+    },
+
+    {
+      "id": "temp-normal",
+      "type": "text",
+      "x": 555,
+      "y": 130,
+      "zIndex": 39,
+      "locked": false,
+      "visible": true,
+      "name": "Normal Temp",
+      "text": "NORMAL",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 14,
+      "fontColor": "#00aa00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 80,
+      "visibilityRule": {
+        "type": "lte",
+        "sensorBinding": "cpu_temp",
+        "threshold": 55
+      }
+    },
+
+    {
+      "id": "section-vertical",
+      "type": "text",
+      "x": 40,
+      "y": 230,
+      "zIndex": 1,
+      "locked": false,
+      "visible": true,
+      "name": "Vertical Section Label",
+      "text": "VERTICAL METERS (Bottom-to-Top Mask)",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 280,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-1-bg",
+      "type": "image",
+      "x": 50,
+      "y": 250,
+      "zIndex": 40,
+      "locked": false,
+      "visible": true,
+      "name": "Vertical Meter 1 BG",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='150' viewBox='0 0 30 150'%3E%3Crect x='0' y='0' width='30' height='150' rx='4' fill='%23181818'/%3E%3C/svg%3E",
+      "width": 30,
+      "height": 150,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-1-fill",
+      "type": "masked_image",
+      "x": 52,
+      "y": 252,
+      "zIndex": 41,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Vertical Fill",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='146' viewBox='0 0 26 146'%3E%3Cdefs%3E%3ClinearGradient id='vGrad1' x1='0%25' y1='100%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2300ff44'/%3E%3Cstop offset='50%25' stop-color='%23ffff00'/%3E%3Cstop offset='100%25' stop-color='%23ff3300'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='26' height='146' rx='2' fill='url(%23vGrad1)'/%3E%3C/svg%3E",
+      "width": 26,
+      "height": 146,
+      "sensorBinding": "cpu_load",
+      "minValue": 0,
+      "maxValue": 100,
+      "maskDirection": "bottom_to_top",
+      "showInactivePortion": true,
+      "inactiveOpacity": 0.1,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-1-label",
+      "type": "text",
+      "x": 40,
+      "y": 408,
+      "zIndex": 42,
+      "locked": false,
+      "visible": true,
+      "name": "CPU Vert Label",
+      "text": "CPU",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 50,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-2-bg",
+      "type": "image",
+      "x": 100,
+      "y": 250,
+      "zIndex": 43,
+      "locked": false,
+      "visible": true,
+      "name": "Vertical Meter 2 BG",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='150' viewBox='0 0 30 150'%3E%3Crect x='0' y='0' width='30' height='150' rx='4' fill='%23181818'/%3E%3C/svg%3E",
+      "width": 30,
+      "height": 150,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-2-fill",
+      "type": "masked_image",
+      "x": 102,
+      "y": 252,
+      "zIndex": 44,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Vertical Fill",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='146' viewBox='0 0 26 146'%3E%3Cdefs%3E%3ClinearGradient id='vGrad2' x1='0%25' y1='100%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230066ff'/%3E%3Cstop offset='100%25' stop-color='%23ff00ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='26' height='146' rx='2' fill='url(%23vGrad2)'/%3E%3C/svg%3E",
+      "width": 26,
+      "height": 146,
+      "sensorBinding": "gpu_load",
+      "minValue": 0,
+      "maxValue": 100,
+      "maskDirection": "bottom_to_top",
+      "showInactivePortion": true,
+      "inactiveOpacity": 0.1,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-2-label",
+      "type": "text",
+      "x": 90,
+      "y": 408,
+      "zIndex": 45,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Vert Label",
+      "text": "GPU",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 50,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-3-bg",
+      "type": "image",
+      "x": 150,
+      "y": 250,
+      "zIndex": 46,
+      "locked": false,
+      "visible": true,
+      "name": "Vertical Meter 3 BG",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='150' viewBox='0 0 30 150'%3E%3Crect x='0' y='0' width='30' height='150' rx='4' fill='%23181818'/%3E%3C/svg%3E",
+      "width": 30,
+      "height": 150,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-3-fill",
+      "type": "masked_image",
+      "x": 152,
+      "y": 252,
+      "zIndex": 47,
+      "locked": false,
+      "visible": true,
+      "name": "RAM Vertical Fill",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='146' viewBox='0 0 26 146'%3E%3Crect x='0' y='0' width='26' height='146' rx='2' fill='%2300ccaa'/%3E%3C/svg%3E",
+      "width": 26,
+      "height": 146,
+      "sensorBinding": "ram_usage",
+      "minValue": 0,
+      "maxValue": 100,
+      "maskDirection": "bottom_to_top",
+      "showInactivePortion": true,
+      "inactiveOpacity": 0.15,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "vert-meter-3-label",
+      "type": "text",
+      "x": 140,
+      "y": 408,
+      "zIndex": 48,
+      "locked": false,
+      "visible": true,
+      "name": "RAM Vert Label",
+      "text": "RAM",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 50,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "section-fan",
+      "type": "text",
+      "x": 250,
+      "y": 230,
+      "zIndex": 1,
+      "locked": false,
+      "visible": true,
+      "name": "Fan Section Label",
+      "text": "SPINNING FAN (ImageTransform)",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 230,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "fan-bg",
+      "type": "image",
+      "x": 270,
+      "y": 250,
+      "zIndex": 50,
+      "locked": false,
+      "visible": true,
+      "name": "Fan Background",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='58' fill='%23181818' stroke='%23333' stroke-width='2'/%3E%3Ccircle cx='60' cy='60' r='8' fill='%23444'/%3E%3C/svg%3E",
+      "width": 120,
+      "height": 120,
+      "rotation": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "fan-blades",
+      "type": "image_transform",
+      "x": 330,
+      "y": 310,
+      "zIndex": 51,
+      "locked": false,
+      "visible": true,
+      "name": "Fan Blades",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23666' opacity='0.9'%3E%3Cpath d='M50,50 L50,10 Q70,10 70,30 L50,50'/%3E%3Cpath d='M50,50 L90,50 Q90,70 70,70 L50,50'/%3E%3Cpath d='M50,50 L50,90 Q30,90 30,70 L50,50'/%3E%3Cpath d='M50,50 L10,50 Q10,30 30,30 L50,50'/%3E%3C/g%3E%3Ccircle cx='50' cy='50' r='6' fill='%23555'/%3E%3C/svg%3E",
+      "width": 100,
+      "height": 100,
+      "pivotX": 50,
+      "pivotY": 50,
+      "sensorBinding": "fan_rpm",
+      "minValue": 0,
+      "maxValue": 3000,
+      "minAngle": 0,
+      "maxAngle": 3600,
+      "clampValue": false,
+      "smoothingFactor": 0,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "fan-rpm-value",
+      "type": "text",
+      "x": 270,
+      "y": 380,
+      "zIndex": 52,
+      "locked": false,
+      "visible": true,
+      "name": "Fan RPM Value",
+      "text": "",
+      "sensorBinding": "fan_rpm",
+      "format": "{value|round} RPM",
+      "fontFamily": "Consolas",
+      "fontSize": 14,
+      "fontColor": "#aaaaaa",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 120,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "fan-off-indicator",
+      "type": "text",
+      "x": 305,
+      "y": 305,
+      "zIndex": 53,
+      "locked": false,
+      "visible": true,
+      "name": "Fan Off Indicator",
+      "text": "OFF",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 12,
+      "fontColor": "#ff3333",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 50,
+      "visibilityRule": {
+        "type": "lte",
+        "sensorBinding": "fan_rpm",
+        "threshold": 100
+      }
+    },
+
+    {
+      "id": "section-between",
+      "type": "text",
+      "x": 450,
+      "y": 230,
+      "zIndex": 1,
+      "locked": false,
+      "visible": true,
+      "name": "Between Section Label",
+      "text": "RANGE INDICATORS ('between' visibility)",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 280,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "range-low",
+      "type": "text",
+      "x": 470,
+      "y": 260,
+      "zIndex": 60,
+      "locked": false,
+      "visible": true,
+      "name": "Range Low (0-33)",
+      "text": "LOW",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 20,
+      "fontColor": "#00ff00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 80,
+      "visibilityRule": {
+        "type": "between",
+        "sensorBinding": "gpu_load",
+        "rangeMin": 0,
+        "rangeMax": 33
+      }
+    },
+
+    {
+      "id": "range-medium",
+      "type": "text",
+      "x": 560,
+      "y": 260,
+      "zIndex": 61,
+      "locked": false,
+      "visible": true,
+      "name": "Range Medium (33-66)",
+      "text": "MEDIUM",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 20,
+      "fontColor": "#ffaa00",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 100,
+      "visibilityRule": {
+        "type": "between",
+        "sensorBinding": "gpu_load",
+        "rangeMin": 33,
+        "rangeMax": 66
+      }
+    },
+
+    {
+      "id": "range-high",
+      "type": "text",
+      "x": 670,
+      "y": 260,
+      "zIndex": 62,
+      "locked": false,
+      "visible": true,
+      "name": "Range High (66-100)",
+      "text": "HIGH",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 20,
+      "fontColor": "#ff3333",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "center",
+      "width": 80,
+      "visibilityRule": {
+        "type": "between",
+        "sensorBinding": "gpu_load",
+        "rangeMin": 66,
+        "rangeMax": 100
+      }
+    },
+
+    {
+      "id": "gpu-load-range-label",
+      "type": "text",
+      "x": 470,
+      "y": 295,
+      "zIndex": 63,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Load Range Label",
+      "text": "GPU LOAD:",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 10,
+      "fontColor": "#666666",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 80,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "gpu-load-range-value",
+      "type": "text",
+      "x": 545,
+      "y": 290,
+      "zIndex": 64,
+      "locked": false,
+      "visible": true,
+      "name": "GPU Load Range Value",
+      "text": "",
+      "sensorBinding": "gpu_load",
+      "format": "{value|round}%",
+      "fontFamily": "Consolas",
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "bold",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 60,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    },
+
+    {
+      "id": "footer-note",
+      "type": "text",
+      "x": 20,
+      "y": 450,
+      "zIndex": 100,
+      "locked": true,
+      "visible": true,
+      "name": "Footer Note",
+      "text": "All animations use AIDA64-native primitives: image rotation, image masking, and visibility rules",
+      "sensorBinding": null,
+      "format": "{value}",
+      "fontFamily": "Arial",
+      "fontSize": 9,
+      "fontColor": "#444444",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textAlign": "left",
+      "width": 600,
+      "visibilityRule": {
+        "type": "always",
+        "sensorBinding": null
+      }
+    }
+  ],
+  "sensorStates": {
+    "cpu_temp": {
+      "mode": "sine",
+      "staticValue": 55,
+      "sineAmplitude": 25,
+      "sineOffset": 55,
+      "sineFrequency": 0.15,
+      "walkStep": 4
+    },
+    "gpu_temp": {
+      "mode": "sine",
+      "staticValue": 60,
+      "sineAmplitude": 20,
+      "sineOffset": 65,
+      "sineFrequency": 0.2,
+      "walkStep": 4
+    },
+    "cpu_load": {
+      "mode": "random_walk",
+      "staticValue": 25,
+      "sineAmplitude": 30,
+      "sineOffset": 50,
+      "sineFrequency": 0.4,
+      "walkStep": 8
+    },
+    "gpu_load": {
+      "mode": "random_walk",
+      "staticValue": 40,
+      "sineAmplitude": 35,
+      "sineOffset": 50,
+      "sineFrequency": 0.35,
+      "walkStep": 10
+    },
+    "ram_usage": {
+      "mode": "sine",
+      "staticValue": 55,
+      "sineAmplitude": 15,
+      "sineOffset": 60,
+      "sineFrequency": 0.1,
+      "walkStep": 5
+    },
+    "fan_rpm": {
+      "mode": "sine",
+      "staticValue": 1500,
+      "sineAmplitude": 800,
+      "sineOffset": 1500,
+      "sineFrequency": 0.08,
+      "walkStep": 200
+    }
+  }
+}

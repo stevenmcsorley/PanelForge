@@ -1,0 +1,235 @@
+{
+    "version": "1.0.0",
+    "name": "Image Sequence Demo Panel",
+    "resolution": {
+        "width": 800,
+        "height": 480,
+        "label": "800×480"
+    },
+    "backgroundColor": "#1a1a2e",
+    "backgroundImage": null,
+    "showGrid": false,
+    "gridSize": 10,
+    "widgets": [
+        {
+            "id": "title-text",
+            "type": "text",
+            "x": 280,
+            "y": 30,
+            "zIndex": 10,
+            "locked": false,
+            "visible": true,
+            "name": "Title",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "text": "ImageSequenceWidget Demo",
+            "sensorBinding": null,
+            "format": "{value}",
+            "fontFamily": "Arial",
+            "fontSize": 24,
+            "fontColor": "#ffffff",
+            "fontWeight": "bold",
+            "fontStyle": "normal",
+            "textAlign": "center",
+            "width": 300
+        },
+        {
+            "id": "description-text",
+            "type": "text",
+            "x": 200,
+            "y": 70,
+            "zIndex": 9,
+            "locked": false,
+            "visible": true,
+            "name": "Description",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "text": "AIDA64-compatible frame-based gauge animation",
+            "sensorBinding": null,
+            "format": "{value}",
+            "fontFamily": "Arial",
+            "fontSize": 14,
+            "fontColor": "#0088ff",
+            "fontWeight": "normal",
+            "fontStyle": "italic",
+            "textAlign": "center",
+            "width": 400
+        },
+        {
+            "id": "instructions-text",
+            "type": "text",
+            "x": 50,
+            "y": 150,
+            "zIndex": 8,
+            "locked": false,
+            "visible": true,
+            "name": "Instructions",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "text": "To use ImageSequence widgets:\n\n1. Add an 'Image Sequence' widget from AIDA64 Primitives\n2. Import your frame images in ascending order\n3. Bind to a sensor (e.g., CPU Temperature)\n4. Set min/max value range to match your frames\n\nThe widget will select frames based on:\nframeIndex = floor(normalized × (frameCount - 1))\n\nThis matches AIDA64's exact behavior for custom gauges.",
+            "sensorBinding": null,
+            "format": "{value}",
+            "fontFamily": "Arial",
+            "fontSize": 12,
+            "fontColor": "#aaaaaa",
+            "fontWeight": "normal",
+            "fontStyle": "normal",
+            "textAlign": "left",
+            "width": 350
+        },
+        {
+            "id": "cpu-temp-label",
+            "type": "text",
+            "x": 550,
+            "y": 150,
+            "zIndex": 7,
+            "locked": false,
+            "visible": true,
+            "name": "CPU Temp Label",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "text": "CPU Temperature",
+            "sensorBinding": null,
+            "format": "{value}",
+            "fontFamily": "Arial",
+            "fontSize": 14,
+            "fontColor": "#ffffff",
+            "fontWeight": "bold",
+            "fontStyle": "normal",
+            "textAlign": "center",
+            "width": 150
+        },
+        {
+            "id": "cpu-temp-value",
+            "type": "text",
+            "x": 550,
+            "y": 320,
+            "zIndex": 6,
+            "locked": false,
+            "visible": true,
+            "name": "CPU Temp Value",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "text": "{value|round}°C",
+            "sensorBinding": "cpu_temp",
+            "format": "{value|round}°C",
+            "fontFamily": "Arial",
+            "fontSize": 32,
+            "fontColor": "#00ff88",
+            "fontWeight": "bold",
+            "fontStyle": "normal",
+            "textAlign": "center",
+            "width": 150
+        },
+        {
+            "id": "image-sequence-placeholder",
+            "type": "image_sequence",
+            "x": 500,
+            "y": 180,
+            "zIndex": 5,
+            "locked": false,
+            "visible": true,
+            "name": "CPU Gauge (Add Frames)",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "images": [],
+            "sensorBinding": "cpu_temp",
+            "minValue": 20,
+            "maxValue": 100,
+            "clamp": true,
+            "width": 120,
+            "height": 120
+        },
+        {
+            "id": "info-box",
+            "type": "text",
+            "x": 50,
+            "y": 380,
+            "zIndex": 4,
+            "locked": false,
+            "visible": true,
+            "name": "Info Box",
+            "visibilityRule": {
+                "type": "always",
+                "sensorBinding": null
+            },
+            "text": "💡 Tip: Select the 'CPU Gauge' widget and add frames using the Properties panel. The gauge will animate based on sensor value.",
+            "sensorBinding": null,
+            "format": "{value}",
+            "fontFamily": "Arial",
+            "fontSize": 11,
+            "fontColor": "#ffaa00",
+            "fontWeight": "normal",
+            "fontStyle": "normal",
+            "textAlign": "left",
+            "width": 700
+        }
+    ],
+    "sensorStates": {
+        "cpu_temp": {
+            "mode": "sine",
+            "staticValue": 45,
+            "sineAmplitude": 30,
+            "sineOffset": 55,
+            "sineFrequency": 0.5,
+            "walkStep": 2
+        },
+        "gpu_temp": {
+            "mode": "static",
+            "staticValue": 50,
+            "sineAmplitude": 20,
+            "sineOffset": 50,
+            "sineFrequency": 0.3,
+            "walkStep": 2
+        },
+        "cpu_load": {
+            "mode": "static",
+            "staticValue": 25,
+            "sineAmplitude": 25,
+            "sineOffset": 50,
+            "sineFrequency": 0.5,
+            "walkStep": 5
+        },
+        "gpu_load": {
+            "mode": "static",
+            "staticValue": 30,
+            "sineAmplitude": 20,
+            "sineOffset": 50,
+            "sineFrequency": 0.4,
+            "walkStep": 5
+        },
+        "ram_usage": {
+            "mode": "static",
+            "staticValue": 45,
+            "sineAmplitude": 15,
+            "sineOffset": 50,
+            "sineFrequency": 0.2,
+            "walkStep": 2
+        },
+        "fan_rpm": {
+            "mode": "static",
+            "staticValue": 1200,
+            "sineAmplitude": 500,
+            "sineOffset": 1500,
+            "sineFrequency": 0.3,
+            "walkStep": 100
+        }
+    },
+    "aida64Settings": {
+        "compatibilityMode": false,
+        "pixelPerfect": true,
+        "showDeprecationWarnings": true
+    }
+}
