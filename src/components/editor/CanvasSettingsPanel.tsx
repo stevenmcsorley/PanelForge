@@ -3,17 +3,34 @@
  * Settings for canvas resolution, background, grid
  */
 
-import React, { useRef } from 'react';
-import { useCanvasStore } from '@/stores';
+import React, { useRef, useState } from 'react';
+import { useCanvasStore, BlendMode } from '@/stores';
 import { SUPPORTED_RESOLUTIONS } from '@/types';
 import { Select, Input, Checkbox, Slider, Button } from '@/components/ui';
+import { PanelBackgroundFoundry } from '@/components/foundry/PanelBackgroundFoundry';
+
+const BLEND_MODE_OPTIONS: { value: BlendMode; label: string }[] = [
+  { value: 'normal', label: 'Normal' },
+  { value: 'multiply', label: 'Multiply' },
+  { value: 'screen', label: 'Screen' },
+  { value: 'overlay', label: 'Overlay' },
+  { value: 'darken', label: 'Darken' },
+  { value: 'lighten', label: 'Lighten' },
+  { value: 'color-dodge', label: 'Color Dodge' },
+  { value: 'color-burn', label: 'Color Burn' },
+  { value: 'hard-light', label: 'Hard Light' },
+  { value: 'soft-light', label: 'Soft Light' },
+];
 
 export const CanvasSettingsPanel: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showBackgroundFoundry, setShowBackgroundFoundry] = useState(false);
   const {
     resolution,
     backgroundColor,
     backgroundImage,
+    backgroundImageOpacity,
+    backgroundImageBlendMode,
     showGrid,
     gridSize,
     showSafeArea,
@@ -21,6 +38,8 @@ export const CanvasSettingsPanel: React.FC = () => {
     setResolution,
     setBackgroundColor,
     setBackgroundImage,
+    setBackgroundImageOpacity,
+    setBackgroundImageBlendMode,
     toggleGrid,
     setGridSize,
     toggleSafeArea,
@@ -91,6 +110,45 @@ export const CanvasSettingsPanel: React.FC = () => {
           )}
         </div>
       </div>
+
+      {backgroundImage && (
+        <>
+          <Slider
+            label="Image Opacity"
+            value={backgroundImageOpacity}
+            onChange={setBackgroundImageOpacity}
+            min={0}
+            max={1}
+            step={0.05}
+          />
+
+          <Select
+            label="Image Blend Mode"
+            value={backgroundImageBlendMode}
+            options={BLEND_MODE_OPTIONS}
+            onChange={(value) => setBackgroundImageBlendMode(value as BlendMode)}
+          />
+        </>
+      )}
+
+      <div className="input-group">
+        <label className="input-label">Procedural Background</label>
+        <Button
+          variant="primary"
+          onClick={() => setShowBackgroundFoundry(true)}
+          fullWidth
+        >
+          Open Background Foundry
+        </Button>
+        <div style={{ fontSize: '10px', color: '#666', marginTop: '4px' }}>
+          Create carbon fiber, brushed metal, and other textures
+        </div>
+      </div>
+
+      <PanelBackgroundFoundry
+        isOpen={showBackgroundFoundry}
+        onClose={() => setShowBackgroundFoundry(false)}
+      />
 
       <div className="panel-header" style={{ marginTop: 16 }}>
         Grid & Guides

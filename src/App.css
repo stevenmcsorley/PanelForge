@@ -138,15 +138,15 @@ body {
 .canvas-area {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
   background: #0a0a0a;
   overflow: auto;
   position: relative;
+  padding: 20px;
 }
 
 .canvas-wrapper {
   display: flex;
+  margin: auto; /* Centers the canvas when smaller than viewport */
   flex-direction: column;
   align-items: center;
   gap: 8px;
@@ -377,7 +377,7 @@ body {
   gap: 12px;
 }
 
-.foundry-param-row > * {
+.foundry-param-row>* {
   flex: 1;
 }
 
@@ -434,4 +434,35 @@ body {
 .foundry-note {
   font-size: 11px;
   color: #666;
+}
+
+/* Template Selector Styles */
+.foundry-template-selector {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.foundry-template-btn {
+  flex: 1;
+  padding: 8px;
+  background: #1a1a2a;
+  border: 1px solid #333;
+  color: #888;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.foundry-template-btn:hover {
+  background: #2a2a3a;
+  color: #ccc;
+}
+
+.foundry-template-btn.active {
+  background: #0088ff;
+  border-color: #0088ff;
+  color: white;
+  font-weight: 600;
 }

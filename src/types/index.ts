@@ -23,6 +23,7 @@ export const SUPPORTED_RESOLUTIONS: CanvasResolution[] = [
   { width: 1024, height: 600, label: '1024×600' },
   { width: 1280, height: 400, label: '1280×400' },
   { width: 1920, height: 480, label: '1920×480' },
+  { width: 480, height: 1920, label: '480×1920 (Portrait)' },
 ];
 
 // ============================================================================

@@ -7,8 +7,11 @@
 import React, { useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Line, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
-import { useCanvasStore, useWidgetStore } from '@/stores';
+import { useCanvasStore, useWidgetStore, blendModeToComposite } from '@/stores';
 import { WidgetRenderer } from '../widgets/WidgetRenderer';
+
+// Konva's globalCompositeOperation type
+type GlobalCompositeOperation = '' | 'source-over' | 'source-in' | 'source-out' | 'source-atop' | 'destination-over' | 'destination-in' | 'destination-out' | 'destination-atop' | 'lighter' | 'copy' | 'xor' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'hard-light' | 'soft-light' | 'difference' | 'exclusion' | 'hue' | 'saturation' | 'color' | 'luminosity';
 
 interface PanelCanvasProps {
   stageRef?: React.RefObject<Konva.Stage>;
@@ -24,6 +27,8 @@ export const PanelCanvas: React.FC<PanelCanvasProps> = ({ stageRef }) => {
     resolution,
     backgroundColor,
     backgroundImage,
+    backgroundImageOpacity,
+    backgroundImageBlendMode,
     showGrid,
     gridSize,
     showSafeArea,
@@ -142,6 +147,8 @@ export const PanelCanvas: React.FC<PanelCanvasProps> = ({ stageRef }) => {
               y={0}
               width={resolution.width}
               height={resolution.height}
+              opacity={backgroundImageOpacity}
+              globalCompositeOperation={blendModeToComposite[backgroundImageBlendMode] as GlobalCompositeOperation}
             />
           )}
         </Layer>

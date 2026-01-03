@@ -10,6 +10,7 @@
 
 import React, { useRef } from 'react';
 import { useWidgetStore } from '@/stores';
+import { useFoundryStore } from '@/stores/foundryStore';
 import {
   TextWidget,
   ImageWidget,
@@ -860,7 +861,7 @@ const MaskedImageWidgetProperties: React.FC<MaskedImageWidgetPropertiesProps> = 
 // ============================================================================
 
 interface ImageSequenceWidgetPropertiesProps {
-  widget: ImageSequenceWidget;
+  widget: ImageSequenceWidget & { id: string };
   sensorOptions: { value: string; label: string }[];
   updateWidget: (updates: Partial<ImageSequenceWidget>) => void;
 }
@@ -871,6 +872,7 @@ const ImageSequenceWidgetProperties: React.FC<ImageSequenceWidgetPropertiesProps
   updateWidget,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { openFoundryForWidget } = useFoundryStore();
 
   const handleFramesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -1108,6 +1110,21 @@ const ImageSequenceWidgetProperties: React.FC<ImageSequenceWidgetPropertiesProps
         checked={widget.clamp}
         onChange={(c) => updateWidget({ clamp: c })}
       />
+
+      {/* Regenerate in Foundry */}
+      <div className="input-group" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #333' }}>
+        <label className="input-label">Gauge Foundry</label>
+        <Button
+          variant="primary"
+          onClick={() => openFoundryForWidget(widget.id, widget.width, widget.height)}
+          fullWidth
+        >
+          Regenerate at Current Size
+        </Button>
+        <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
+          Open the Gauge Foundry to generate new frames at {widget.width}x{widget.height}
+        </div>
+      </div>
     </>
   );
 };

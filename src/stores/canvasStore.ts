@@ -11,11 +11,30 @@ import {
   DEFAULT_AIDA64_SETTINGS,
 } from '@/types';
 
+// CSS/Canvas blend modes - 'normal' maps to 'source-over' in Canvas API
+export type BlendMode = 'normal' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'hard-light' | 'soft-light';
+
+// Map our BlendMode to Canvas globalCompositeOperation values
+export const blendModeToComposite: Record<BlendMode, string> = {
+  'normal': 'source-over',
+  'multiply': 'multiply',
+  'screen': 'screen',
+  'overlay': 'overlay',
+  'darken': 'darken',
+  'lighten': 'lighten',
+  'color-dodge': 'color-dodge',
+  'color-burn': 'color-burn',
+  'hard-light': 'hard-light',
+  'soft-light': 'soft-light',
+};
+
 interface CanvasState {
   // Canvas properties
   resolution: CanvasResolution;
   backgroundColor: string;
   backgroundImage: string | null;
+  backgroundImageOpacity: number;
+  backgroundImageBlendMode: BlendMode;
 
   // Grid overlay
   showGrid: boolean;
@@ -35,6 +54,8 @@ interface CanvasState {
   setResolution: (resolution: CanvasResolution) => void;
   setBackgroundColor: (color: string) => void;
   setBackgroundImage: (image: string | null) => void;
+  setBackgroundImageOpacity: (opacity: number) => void;
+  setBackgroundImageBlendMode: (blendMode: BlendMode) => void;
   toggleGrid: () => void;
   setGridSize: (size: number) => void;
   toggleSafeArea: () => void;
@@ -55,6 +76,8 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   resolution: SUPPORTED_RESOLUTIONS[0], // 800x480 default
   backgroundColor: '#1a1a1a',
   backgroundImage: null,
+  backgroundImageOpacity: 1,
+  backgroundImageBlendMode: 'normal' as BlendMode,
 
   showGrid: false,
   gridSize: 10,
@@ -68,11 +91,21 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   aida64Settings: { ...DEFAULT_AIDA64_SETTINGS },
 
   // Actions
-  setResolution: (resolution) => set({ resolution }),
+  setResolution: (resolution) => set({
+    resolution,
+    // Reset zoom to 1 and pan to 0 when changing resolution
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+  }),
 
   setBackgroundColor: (backgroundColor) => set({ backgroundColor }),
 
   setBackgroundImage: (backgroundImage) => set({ backgroundImage }),
+
+  setBackgroundImageOpacity: (backgroundImageOpacity) => set({ backgroundImageOpacity }),
+
+  setBackgroundImageBlendMode: (backgroundImageBlendMode) => set({ backgroundImageBlendMode }),
 
   toggleGrid: () => set((state) => ({ showGrid: !state.showGrid })),
 

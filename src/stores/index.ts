@@ -1,4 +1,4 @@
-export { useCanvasStore } from './canvasStore';
+export { useCanvasStore, type BlendMode, blendModeToComposite } from './canvasStore';
 export {
   useWidgetStore,
   createDefaultTextWidget,
