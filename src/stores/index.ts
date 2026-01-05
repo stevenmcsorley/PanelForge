@@ -10,4 +10,7 @@ export {
 } from './widgetStore';
 export { useSensorStore } from './sensorStore';
 export { useFoundryStore } from './foundryStore';
+export { useClockFoundryStore } from './clockFoundryStore';
+export { useLcdGaugeFoundryStore } from './lcdGaugeFoundryStore';
+export { useShapeGaugeFoundryStore } from './shapeGaugeFoundryStore';
 

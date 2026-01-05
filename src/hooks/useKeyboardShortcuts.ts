@@ -35,6 +35,12 @@ export function useKeyboardShortcuts(): void {
         return;
       }
 
+      // Always prevent browser default for our shortcuts, even without selection
+      // This prevents Ctrl+D from bookmarking, etc.
+      if ((e.ctrlKey || e.metaKey) && ['d', 'c', 'v', 'l', '[', ']'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+
       const widget = getSelectedWidget();
       if (!widget) return;
 

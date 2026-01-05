@@ -67,6 +67,7 @@ class SensorEngine {
     const store = useSensorStore.getState();
     this.time += store.updateInterval / 1000;
 
+    // Update hardware sensors
     for (const config of DEFAULT_SENSORS) {
       const sensorState = store.sensors[config.key];
       let newValue: number;
@@ -96,6 +97,19 @@ class SensorEngine {
       store.setSensorValue(config.key, newValue);
       this.lastValues.set(config.key, newValue);
     }
+
+    // Update time sensors from system clock
+    this.updateTimeSensors(store);
+  }
+
+  /**
+   * Update time sensor from system clock
+   * Time is represented as seconds since midnight (0-86399)
+   */
+  private updateTimeSensors(store: ReturnType<typeof useSensorStore.getState>): void {
+    const now = new Date();
+    const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    store.setSensorValue('time', secondsSinceMidnight);
   }
 
   /**

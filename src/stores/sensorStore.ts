@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { SensorKey, SensorState, SimulationMode, DEFAULT_SENSORS } from '@/types';
+import { SensorKey, SensorState, SimulationMode, DEFAULT_SENSORS, POWER_SENSORS, STORAGE_SENSORS, NETWORK_SENSORS, TIME_SENSORS, ALL_SENSORS } from '@/types';
 
 interface SensorStoreState {
   sensors: Record<SensorKey, SensorState>;
@@ -30,6 +30,7 @@ interface SensorStoreState {
 function createInitialSensorState(): Record<SensorKey, SensorState> {
   const states: Partial<Record<SensorKey, SensorState>> = {};
 
+  // Initialize hardware sensors with simulation modes
   for (const config of DEFAULT_SENSORS) {
     states[config.key] = {
       key: config.key,
@@ -40,6 +41,62 @@ function createInitialSensorState(): Record<SensorKey, SensorState> {
       sineOffset: (config.max + config.min) / 2,
       sineFrequency: 0.5 + Math.random() * 0.5, // Slightly different freq per sensor
       walkStep: (config.max - config.min) / 20,
+    };
+  }
+
+  // Initialize power & voltage sensors with simulation modes
+  for (const config of POWER_SENSORS) {
+    states[config.key] = {
+      key: config.key,
+      value: config.defaultValue,
+      mode: 'sine',
+      staticValue: config.defaultValue,
+      sineAmplitude: (config.max - config.min) / 8, // Smaller amplitude for voltages
+      sineOffset: (config.max + config.min) / 2,
+      sineFrequency: 0.3 + Math.random() * 0.3, // Slower oscillation
+      walkStep: (config.max - config.min) / 40,
+    };
+  }
+
+  // Initialize storage sensors with random walk (bursty behavior)
+  for (const config of STORAGE_SENSORS) {
+    states[config.key] = {
+      key: config.key,
+      value: config.defaultValue,
+      mode: config.key === 'disk_usage' ? 'static' : 'random_walk', // Usage is static, read/write bursty
+      staticValue: config.defaultValue,
+      sineAmplitude: (config.max - config.min) / 4,
+      sineOffset: (config.max + config.min) / 2,
+      sineFrequency: 0.5 + Math.random() * 0.5,
+      walkStep: (config.max - config.min) / 10, // Larger steps for bursty I/O
+    };
+  }
+
+  // Initialize network sensors with random walk (bursty behavior)
+  for (const config of NETWORK_SENSORS) {
+    states[config.key] = {
+      key: config.key,
+      value: config.defaultValue,
+      mode: 'random_walk',
+      staticValue: config.defaultValue,
+      sineAmplitude: (config.max - config.min) / 4,
+      sineOffset: (config.max + config.min) / 2,
+      sineFrequency: 0.5 + Math.random() * 0.5,
+      walkStep: (config.max - config.min) / 15,
+    };
+  }
+
+  // Initialize time sensors with realtime mode
+  for (const config of TIME_SENSORS) {
+    states[config.key] = {
+      key: config.key,
+      value: config.defaultValue,
+      mode: 'realtime',
+      staticValue: config.defaultValue,
+      sineAmplitude: 0,
+      sineOffset: 0,
+      sineFrequency: 0,
+      walkStep: 0,
     };
   }
 
@@ -70,7 +127,7 @@ export const useSensorStore = create<SensorStoreState>((set, get) => ({
   },
 
   setSensorStaticValue: (key, value) => {
-    const config = DEFAULT_SENSORS.find((s) => s.key === key);
+    const config = ALL_SENSORS.find((s) => s.key === key);
     if (!config) return;
 
     const clampedValue = Math.min(Math.max(value, config.min), config.max);
@@ -117,5 +174,5 @@ export const useSensorStore = create<SensorStoreState>((set, get) => ({
 
   getSensorValue: (key) => get().sensors[key]?.value ?? 0,
 
-  getSensorConfig: (key) => DEFAULT_SENSORS.find((s) => s.key === key),
+  getSensorConfig: (key) => ALL_SENSORS.find((s) => s.key === key),
 }));

@@ -1,5 +1,8 @@
 // Core components
 export { GaugeFoundry } from './GaugeFoundry';
+export { ClockFoundry } from './ClockFoundry';
+export { LcdGaugeFoundry } from './LcdGaugeFoundry';
+export { ShapeGaugeFoundry } from './ShapeGaugeFoundry';
 export { BackgroundFoundry } from './BackgroundFoundry';
 export { PanelBackgroundFoundry } from './PanelBackgroundFoundry';
 export { GaugePreviewCanvas } from './GaugePreviewCanvas';

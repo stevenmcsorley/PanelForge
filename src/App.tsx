@@ -13,16 +13,19 @@ import {
   SensorPanel,
   ExportPanel,
 } from '@/components/editor';
-import { GaugeFoundry } from '@/components/foundry';
+import { GaugeFoundry, ClockFoundry, LcdGaugeFoundry, ShapeGaugeFoundry } from '@/components/foundry';
 import { useKeyboardShortcuts } from '@/hooks';
 import { sensorEngine } from '@/engine';
-import { useCanvasStore, useFoundryStore } from '@/stores';
+import { useCanvasStore, useFoundryStore, useClockFoundryStore, useLcdGaugeFoundryStore, useShapeGaugeFoundryStore } from '@/stores';
 import './App.css';
 
 const App: React.FC = () => {
   const stageRef = useRef<Konva.Stage>(null);
   const { resolution, zoom, setZoom, resetView } = useCanvasStore();
   const { openFoundry } = useFoundryStore();
+  const { openClockFoundry } = useClockFoundryStore();
+  const { openLcdGaugeFoundry } = useLcdGaugeFoundryStore();
+  const { openShapeGaugeFoundry } = useShapeGaugeFoundryStore();
 
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
@@ -44,8 +47,11 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      {/* Gauge Foundry Modal */}
+      {/* Foundry Modals */}
       <GaugeFoundry />
+      <ClockFoundry />
+      <LcdGaugeFoundry />
+      <ShapeGaugeFoundry />
 
       {/* Header */}
       <header className="app-header">
@@ -58,7 +64,16 @@ const App: React.FC = () => {
         {/* Tools Menu */}
         <div className="app-tools">
           <button className="app-tool-btn" onClick={openFoundry} title="Vector Gauge Foundry">
-            ⚙️ Gauge Foundry
+            Gauge Foundry
+          </button>
+          <button className="app-tool-btn" onClick={openClockFoundry} title="Clock Foundry">
+            Clock Foundry
+          </button>
+          <button className="app-tool-btn" onClick={openLcdGaugeFoundry} title="LCD Gauge Foundry">
+            LCD Gauge
+          </button>
+          <button className="app-tool-btn" onClick={openShapeGaugeFoundry} title="Shape Gauge Foundry">
+            Shape Gauge
           </button>
         </div>
 

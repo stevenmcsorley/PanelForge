@@ -47,7 +47,7 @@ export const Input: React.FC<InputProps> = ({
 interface SelectProps {
   label: string;
   value: string;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; disabled?: boolean }[];
   onChange: (value: string) => void;
   disabled?: boolean;
 }
@@ -69,7 +69,7 @@ export const Select: React.FC<SelectProps> = ({
         disabled={disabled}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} disabled={opt.disabled}>
             {opt.label}
           </option>
         ))}

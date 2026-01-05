@@ -67,11 +67,22 @@ export const ImageSequenceWidgetRenderer: React.FC<ImageSequenceWidgetRendererPr
     }, [widget.images]);
 
     // Calculate current frame index based on sensor value
-    // AIDA64 Parity: frameIndex = floor(normalized * (images.length - 1))
     const frameIndex = useMemo(() => {
         if (widget.images.length === 0) return -1;
         if (widget.images.length === 1) return 0;
 
+        // Modulo mode: use sensorValue % frameCount for time-based cycling
+        // e.g., time sensor (0-86399) with 60 frames and divisor=1 = shows seconds
+        // e.g., time sensor (0-86399) with 60 frames and divisor=60 = shows minutes
+        // e.g., time sensor (0-86399) with 12 frames and divisor=3600 = shows hours
+        if (widget.useModulo) {
+            const divisor = widget.moduloDivisor || 1;
+            const dividedValue = Math.floor(sensorValue / divisor);
+            const index = dividedValue % widget.images.length;
+            return Math.max(0, index);
+        }
+
+        // Standard mode: AIDA64 Parity - normalized range mapping
         const range = widget.maxValue - widget.minValue;
         if (range === 0) return 0;
 
@@ -86,7 +97,7 @@ export const ImageSequenceWidgetRenderer: React.FC<ImageSequenceWidgetRendererPr
 
         // Clamp to valid range even if clamp is false (prevent array bounds error)
         return Math.max(0, Math.min(index, widget.images.length - 1));
-    }, [sensorValue, widget.minValue, widget.maxValue, widget.clamp, widget.images.length]);
+    }, [sensorValue, widget.minValue, widget.maxValue, widget.clamp, widget.images.length, widget.useModulo, widget.moduloDivisor]);
 
     // Get current frame image
     const currentImage = frameIndex >= 0 && loadedImages[frameIndex] ? loadedImages[frameIndex] : null;

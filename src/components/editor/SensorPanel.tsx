@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useSensorStore } from '@/stores';
-import { DEFAULT_SENSORS, SimulationMode } from '@/types';
+import { DEFAULT_SENSORS, TIME_SENSORS, SimulationMode, SensorConfig } from '@/types';
 import { Select, Slider, Button } from '@/components/ui';
 import { sensorEngine } from '@/engine';
 
@@ -49,9 +49,23 @@ export const SensorPanel: React.FC = () => {
         step={100}
       />
 
-      <div style={{ marginTop: 16 }}>
+      {/* Hardware Sensors */}
+      <div className="panel-header" style={{ marginTop: 16, fontSize: 11, color: '#666' }}>
+        Hardware Sensors
+      </div>
+      <div>
         {DEFAULT_SENSORS.map((config) => (
           <SensorControl key={config.key} config={config} state={sensors[config.key]} />
+        ))}
+      </div>
+
+      {/* Time Sensors */}
+      <div className="panel-header" style={{ marginTop: 16, fontSize: 11, color: '#666' }}>
+        Time Sensors (Realtime)
+      </div>
+      <div>
+        {TIME_SENSORS.map((config) => (
+          <TimeSensorDisplay key={config.key} config={config} state={sensors[config.key]} />
         ))}
       </div>
     </div>
@@ -59,9 +73,39 @@ export const SensorPanel: React.FC = () => {
 };
 
 interface SensorControlProps {
-  config: (typeof DEFAULT_SENSORS)[0];
+  config: SensorConfig;
   state: ReturnType<typeof useSensorStore.getState>['sensors'][keyof ReturnType<typeof useSensorStore.getState>['sensors']];
 }
+
+// Simple display for time sensor (read-only, always realtime)
+const TimeSensorDisplay: React.FC<SensorControlProps> = ({ config, state }) => {
+  // Convert seconds since midnight to HH:MM:SS format
+  const formatTime = (secondsSinceMidnight: number): string => {
+    const hours = Math.floor(secondsSinceMidnight / 3600);
+    const minutes = Math.floor((secondsSinceMidnight % 3600) / 60);
+    const seconds = Math.floor(secondsSinceMidnight % 60);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '8px 0',
+    }}>
+      <span style={{ color: '#888', fontSize: 12 }}>{config.label}</span>
+      <span style={{
+        color: '#00cc66',
+        fontFamily: 'monospace',
+        fontSize: 18,
+        fontWeight: 'bold'
+      }}>
+        {formatTime(state.value)}
+      </span>
+    </div>
+  );
+};
 
 const SensorControl: React.FC<SensorControlProps> = ({ config, state }) => {
   const {

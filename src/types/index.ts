@@ -36,9 +36,29 @@ export type SensorKey =
   | 'cpu_load'
   | 'gpu_load'
   | 'ram_usage'
-  | 'fan_rpm';
+  | 'fan_rpm'
+  // Time sensor - provides current time as seconds since midnight (0-86399)
+  | 'time'
+  // Power & Voltage
+  | 'cpu_power'
+  | 'gpu_power'
+  | 'cpu_voltage'
+  | 'gpu_voltage'
+  | 'psu_voltage_12v'
+  | 'psu_voltage_5v'
+  | 'psu_voltage_3v'
+  // Storage
+  | 'disk_usage'
+  | 'disk_read'
+  | 'disk_write'
+  | 'disk_temp'
+  // Network
+  | 'net_download'
+  | 'net_upload'
+  | 'net_ping'
+  | 'net_packets';
 
-export type SimulationMode = 'static' | 'sine' | 'random_walk' | 'manual';
+export type SimulationMode = 'static' | 'sine' | 'random_walk' | 'manual' | 'realtime';
 
 export interface SensorConfig {
   key: SensorKey;
@@ -70,6 +90,52 @@ export const DEFAULT_SENSORS: SensorConfig[] = [
   { key: 'ram_usage', label: 'RAM Usage', unit: '%', min: 0, max: 100, defaultValue: 45 },
   { key: 'fan_rpm', label: 'Fan RPM', unit: 'RPM', min: 0, max: 5000, defaultValue: 1200 },
 ];
+
+// Power & Voltage sensors
+export const POWER_SENSORS: SensorConfig[] = [
+  { key: 'cpu_power', label: 'CPU Power', unit: 'W', min: 0, max: 300, defaultValue: 65 },
+  { key: 'gpu_power', label: 'GPU Power', unit: 'W', min: 0, max: 500, defaultValue: 150 },
+  { key: 'cpu_voltage', label: 'CPU Voltage', unit: 'V', min: 0.5, max: 2.0, defaultValue: 1.2 },
+  { key: 'gpu_voltage', label: 'GPU Voltage', unit: 'V', min: 0.5, max: 2.0, defaultValue: 1.0 },
+  { key: 'psu_voltage_12v', label: 'PSU 12V Rail', unit: 'V', min: 10, max: 14, defaultValue: 12.1 },
+  { key: 'psu_voltage_5v', label: 'PSU 5V Rail', unit: 'V', min: 4, max: 6, defaultValue: 5.05 },
+  { key: 'psu_voltage_3v', label: 'PSU 3.3V Rail', unit: 'V', min: 2.5, max: 4, defaultValue: 3.32 },
+];
+
+// Storage sensors
+export const STORAGE_SENSORS: SensorConfig[] = [
+  { key: 'disk_usage', label: 'Disk Usage', unit: '%', min: 0, max: 100, defaultValue: 45 },
+  { key: 'disk_read', label: 'Disk Read', unit: 'MB/s', min: 0, max: 1000, defaultValue: 50 },
+  { key: 'disk_write', label: 'Disk Write', unit: 'MB/s', min: 0, max: 1000, defaultValue: 25 },
+  { key: 'disk_temp', label: 'Disk Temperature', unit: '°C', min: 20, max: 80, defaultValue: 35 },
+];
+
+// Network sensors
+export const NETWORK_SENSORS: SensorConfig[] = [
+  { key: 'net_download', label: 'Download Speed', unit: 'MB/s', min: 0, max: 200, defaultValue: 15 },
+  { key: 'net_upload', label: 'Upload Speed', unit: 'MB/s', min: 0, max: 200, defaultValue: 5 },
+  { key: 'net_ping', label: 'Network Ping', unit: 'ms', min: 0, max: 500, defaultValue: 25 },
+  { key: 'net_packets', label: 'Packets/sec', unit: 'pkt/s', min: 0, max: 10000, defaultValue: 500 },
+];
+
+// Time sensor - seconds since midnight (0-86399), always realtime
+export const TIME_SENSORS: SensorConfig[] = [
+  { key: 'time', label: 'Time (Realtime)', unit: '', min: 0, max: 86399, defaultValue: 43200 },
+];
+
+// All sensors combined
+export const ALL_SENSORS: SensorConfig[] = [
+  ...DEFAULT_SENSORS,
+  ...POWER_SENSORS,
+  ...STORAGE_SENSORS,
+  ...NETWORK_SENSORS,
+  ...TIME_SENSORS,
+];
+
+// Helper to check if a sensor is a time sensor
+export function isTimeSensor(key: SensorKey): boolean {
+  return key === 'time';
+}
 
 // ============================================================================
 // Visibility Rules (AIDA64 Parity)
@@ -262,6 +328,14 @@ export interface MaskedImageWidget extends BaseWidget {
  * - Frame selection: frameIndex = floor(normalized * (images.length - 1))
  * - Only the active frame is rendered at any time
  */
+// Source foundry that created the ImageSequenceWidget
+export type FoundrySource = 'gauge' | 'clock' | 'lcd' | 'shape' | 'uploaded' | null;
+
+// Foundry parameters stored with widget for regeneration
+// This is a union type that can hold params from any foundry
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FoundryParams = Record<string, any> | null;
+
 export interface ImageSequenceWidget extends BaseWidget {
   type: 'image_sequence';
   images: string[];           // Ordered frame paths/base64
@@ -271,6 +345,16 @@ export interface ImageSequenceWidget extends BaseWidget {
   clamp: boolean;
   width: number;
   height: number;
+  // For time-based clocks: use modulo to cycle through frames
+  // e.g., 60 frames with time sensor: frame = sensorValue % 60
+  useModulo: boolean;
+  // Divisor applied before modulo (for minutes: 60, for hours: 3600)
+  // frame = floor(sensorValue / moduloDivisor) % frameCount
+  moduloDivisor: number;
+  // Track which foundry created this widget for regeneration
+  sourceFoundry?: FoundrySource;
+  // Store foundry parameters for regeneration (persisted in JSON export)
+  foundryParams?: FoundryParams;
 }
 
 /**

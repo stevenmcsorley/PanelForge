@@ -240,6 +240,10 @@ export function createDefaultImageSequenceWidget(
     clamp: true,
     width: 100,
     height: 100,
+    useModulo: false,
+    moduloDivisor: 1,
+    sourceFoundry: null,
+    foundryParams: null,
     ...overrides,
   };
 }

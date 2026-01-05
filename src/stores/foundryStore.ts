@@ -242,7 +242,7 @@ export interface FoundryState {
 
     // Actions
     openFoundry: () => void;
-    openFoundryForWidget: (widgetId: string, width: number, height: number) => void;
+    openFoundryForWidget: (widgetId: string, width: number, height: number, savedParams?: Record<string, unknown> | null) => void;
     closeFoundry: () => void;
     setActiveTab: (tab: FoundryTab) => void;
     setTemplate: (template: FoundryTemplate) => void;
@@ -487,86 +487,35 @@ export const useFoundryStore = create<FoundryState>((set) => ({
 
     // Actions
     openFoundry: () => set({ isOpen: true, editingWidgetId: null }),
-    openFoundryForWidget: (widgetId, width, height) => set((state) => {
-        // Calculate scale factor: new size relative to current output size
-        const currentSize = Math.min(state.outputWidth, state.outputHeight);
-        const newSize = Math.min(width, height);
-        const scaleFactor = newSize / currentSize;
+    openFoundryForWidget: (widgetId, width, height, savedParams) => set(() => {
+        // If we have saved params from the widget, restore them exactly
+        if (savedParams) {
+            return {
+                isOpen: true,
+                editingWidgetId: widgetId,
+                outputWidth: Math.round(width),
+                outputHeight: Math.round(height),
+                generatedFrames: [],
+                selectedTemplate: savedParams.selectedTemplate as FoundryTemplate || 'led_arc',
+                frameCount: savedParams.frameCount as number || 101,
+                useTransparentBackground: savedParams.useTransparentBackground as boolean ?? false,
+                ledArcParams: savedParams.ledArcParams as LedArcParams || DEFAULT_LED_ARC_PARAMS,
+                needleParams: savedParams.needleParams as NeedleParams || DEFAULT_NEEDLE_PARAMS,
+                backgroundParams: savedParams.backgroundParams as BackgroundParams || DEFAULT_BACKGROUND_PARAMS,
+                tickParams: savedParams.tickParams as TickParams || DEFAULT_TICK_PARAMS,
+                labelParams: savedParams.labelParams as LabelParams || DEFAULT_LABEL_PARAMS,
+                layerOrder: savedParams.layerOrder as LayerType[] || DEFAULT_LAYER_ORDER,
+                encasingParams: savedParams.encasingParams as EncasingParams || DEFAULT_ENCASING,
+            };
+        }
 
-        // Scale LED Arc params (all size-related properties)
-        const scaledLedArc: LedArcParams = {
-            ...state.ledArcParams,
-            innerRadius: Math.round(state.ledArcParams.innerRadius * scaleFactor),
-            outerRadius: Math.round(state.ledArcParams.outerRadius * scaleFactor),
-            segmentGap: Math.max(1, Math.round(state.ledArcParams.segmentGap * scaleFactor)),
-            glowStrength: Math.max(1, Math.round(state.ledArcParams.glowStrength * scaleFactor)),
-        };
-
-        // Scale Needle params
-        const scaledNeedle: NeedleParams = {
-            ...state.needleParams,
-            needleLength: Math.round(state.needleParams.needleLength * scaleFactor),
-            needleWidth: Math.max(2, Math.round(state.needleParams.needleWidth * scaleFactor)),
-            hubRadius: Math.round(state.needleParams.hubRadius * scaleFactor),
-            shadowOffset: Math.round(state.needleParams.shadowOffset * scaleFactor),
-        };
-
-        // Scale Tick params
-        const scaledTicks: TickParams = {
-            ...state.tickParams,
-            majorLength: Math.round(state.tickParams.majorLength * scaleFactor),
-            minorLength: Math.round(state.tickParams.minorLength * scaleFactor),
-            majorWidth: Math.max(1, Math.round(state.tickParams.majorWidth * scaleFactor)),
-            minorWidth: Math.max(1, Math.round(state.tickParams.minorWidth * scaleFactor)),
-            radius: Math.round(state.tickParams.radius * scaleFactor),
-        };
-
-        // Scale Label params
-        const scaledLabels: LabelParams = {
-            ...state.labelParams,
-            fontSize: Math.max(8, Math.round(state.labelParams.fontSize * scaleFactor)),
-            offset: Math.round(state.labelParams.offset * scaleFactor),
-            letterSpacing: Math.round(state.labelParams.letterSpacing * scaleFactor),
-        };
-
-        // Scale Encasing params
-        const scaledEncasing: EncasingParams = {
-            ...state.encasingParams,
-            rim: {
-                ...state.encasingParams.rim,
-                width: Math.max(2, Math.round(state.encasingParams.rim.width * scaleFactor)),
-                bevelWidth: Math.max(0, Math.round(state.encasingParams.rim.bevelWidth * scaleFactor)),
-            },
-            glass: { ...state.encasingParams.glass },
-            screws: {
-                ...state.encasingParams.screws,
-                size: Math.max(4, Math.round(state.encasingParams.screws.size * scaleFactor)),
-                inset: Math.round(state.encasingParams.screws.inset * scaleFactor),
-            },
-            rubberSeal: {
-                ...state.encasingParams.rubberSeal,
-                width: Math.max(2, Math.round(state.encasingParams.rubberSeal.width * scaleFactor)),
-            },
-        };
-
-        // Scale LED effects depth
-        const scaledEffects: LedEffectsParams = {
-            ...state.ledArcParams.effects,
-            insetShadowDepth: Math.max(1, Math.round(state.ledArcParams.effects.insetShadowDepth * scaleFactor)),
-        };
-        scaledLedArc.effects = scaledEffects;
-
+        // No saved params - just open with current size (legacy behavior)
         return {
             isOpen: true,
             editingWidgetId: widgetId,
             outputWidth: Math.round(width),
             outputHeight: Math.round(height),
             generatedFrames: [],
-            ledArcParams: scaledLedArc,
-            needleParams: scaledNeedle,
-            tickParams: scaledTicks,
-            labelParams: scaledLabels,
-            encasingParams: scaledEncasing,
         };
     }),
     closeFoundry: () => set({ isOpen: false, editingWidgetId: null, generatedFrames: [], isGenerating: false }),

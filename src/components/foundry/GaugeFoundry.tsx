@@ -141,12 +141,27 @@ export const GaugeFoundry: React.FC = () => {
     const handleCreateWidget = useCallback(() => {
         if (generatedFrames.length === 0) return;
 
+        // Build foundry params to save with widget for regeneration
+        const foundryParams = {
+            selectedTemplate,
+            frameCount,
+            useTransparentBackground,
+            ledArcParams: { ...ledArcParams },
+            needleParams: { ...needleParams },
+            backgroundParams: { ...backgroundParams },
+            tickParams: { ...tickParams },
+            labelParams: { ...labelParams },
+            layerOrder: [...layerOrder],
+            encasingParams: { ...encasingParams },
+        };
+
         if (editingWidgetId) {
             // Update existing widget with new frames
             updateWidget(editingWidgetId, {
                 images: generatedFrames,
                 width: outputWidth,
                 height: outputHeight,
+                foundryParams,
             });
         } else {
             // Create new widget
@@ -159,10 +174,12 @@ export const GaugeFoundry: React.FC = () => {
                 width: outputWidth,
                 height: outputHeight,
                 name: widgetName,
+                sourceFoundry: 'gauge',
+                foundryParams,
             }));
         }
         closeFoundry();
-    }, [generatedFrames, outputWidth, outputHeight, addWidget, updateWidget, closeFoundry, selectedTemplate, editingWidgetId]);
+    }, [generatedFrames, outputWidth, outputHeight, selectedTemplate, frameCount, useTransparentBackground, ledArcParams, needleParams, backgroundParams, tickParams, labelParams, layerOrder, encasingParams, addWidget, updateWidget, closeFoundry, editingWidgetId]);
 
     // Export to AIDA64 (ZIP)
     const handleExportZip = useCallback(async () => {

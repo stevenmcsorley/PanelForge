@@ -8,9 +8,12 @@
  * - Visibility rule editor for all widgets
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { useWidgetStore } from '@/stores';
 import { useFoundryStore } from '@/stores/foundryStore';
+import { useLcdGaugeFoundryStore } from '@/stores/lcdGaugeFoundryStore';
+import { useShapeGaugeFoundryStore } from '@/stores/shapeGaugeFoundryStore';
+import { useClockFoundryStore } from '@/stores/clockFoundryStore';
 import {
   TextWidget,
   ImageWidget,
@@ -19,6 +22,7 @@ import {
   ImageSequenceWidget,
   RadialSegmentWidget,
   DEFAULT_SENSORS,
+  TIME_SENSORS,
   SensorKey,
   VisibilityRule,
   VisibilityRuleType,
@@ -26,6 +30,7 @@ import {
   MaskDirection,
 } from '@/types';
 import { Input, Select, Slider, Checkbox, Button } from '@/components/ui';
+import { exportFramesToZip } from '@/utils/aida64Export';
 
 export const WidgetPropertiesPanel: React.FC = () => {
   const { widgets, selectedWidgetId, updateWidget } = useWidgetStore();
@@ -46,6 +51,7 @@ export const WidgetPropertiesPanel: React.FC = () => {
   const sensorOptions = [
     { value: '', label: 'None (Static)' },
     ...DEFAULT_SENSORS.map((s) => ({ value: s.key, label: s.label })),
+    ...TIME_SENSORS.map((s) => ({ value: s.key, label: s.label })),
   ];
 
   const isDeprecated = isDeprecatedWidget(widget.type);
@@ -872,7 +878,69 @@ const ImageSequenceWidgetProperties: React.FC<ImageSequenceWidgetPropertiesProps
   updateWidget,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
   const { openFoundryForWidget } = useFoundryStore();
+  const { openLcdGaugeFoundryForWidget } = useLcdGaugeFoundryStore();
+  const { openShapeGaugeFoundryForWidget } = useShapeGaugeFoundryStore();
+  const { openClockFoundryForWidget } = useClockFoundryStore();
+
+  // Export frames as ZIP
+  const handleExportZip = useCallback(async () => {
+    if (widget.images.length === 0) return;
+
+    setIsExporting(true);
+    setExportProgress(0);
+
+    try {
+      await exportFramesToZip(
+        {
+          frames: widget.images,
+          prefix: 'frame',
+          padding: 3,
+          gaugeName: widget.name || 'image_sequence',
+        },
+        (progress) => setExportProgress(Math.round(progress * 100))
+      );
+    } finally {
+      setIsExporting(false);
+      setExportProgress(0);
+    }
+  }, [widget.images, widget.name]);
+
+  // Route to the correct foundry based on sourceFoundry
+  const handleOpenFoundry = useCallback(() => {
+    const source = widget.sourceFoundry;
+    const params = widget.foundryParams;
+    switch (source) {
+      case 'lcd':
+        openLcdGaugeFoundryForWidget(widget.id, widget.width, widget.height, params);
+        break;
+      case 'shape':
+        openShapeGaugeFoundryForWidget(widget.id, widget.width, widget.height, params);
+        break;
+      case 'clock':
+        openClockFoundryForWidget(widget.id, widget.width, widget.height, params);
+        break;
+      case 'gauge':
+      default:
+        // Default to gauge foundry for backwards compatibility
+        openFoundryForWidget(widget.id, widget.width, widget.height, params);
+        break;
+    }
+  }, [widget.id, widget.width, widget.height, widget.sourceFoundry, widget.foundryParams, openFoundryForWidget, openLcdGaugeFoundryForWidget, openShapeGaugeFoundryForWidget, openClockFoundryForWidget]);
+
+  // Get foundry name for display
+  const getFoundryName = () => {
+    switch (widget.sourceFoundry) {
+      case 'lcd': return 'LCD Gauge Foundry';
+      case 'shape': return 'Shape Gauge Foundry';
+      case 'clock': return 'Clock Foundry';
+      case 'gauge': return 'Gauge Foundry';
+      case 'uploaded': return 'Uploaded Frames';
+      default: return 'Gauge Foundry';
+    }
+  };
 
   const handleFramesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -1111,18 +1179,59 @@ const ImageSequenceWidgetProperties: React.FC<ImageSequenceWidgetPropertiesProps
         onChange={(c) => updateWidget({ clamp: c })}
       />
 
+      <Checkbox
+        label="Use Modulo (for time cycling)"
+        checked={widget.useModulo}
+        onChange={(c) => updateWidget({ useModulo: c })}
+      />
+
+      {widget.useModulo && (
+        <>
+          <Select
+            label="Time Unit"
+            value={String(widget.moduloDivisor || 1)}
+            options={[
+              { value: '1', label: 'Seconds (divisor: 1)' },
+              { value: '60', label: 'Minutes (divisor: 60)' },
+              { value: '3600', label: 'Hours (divisor: 3600)' },
+            ]}
+            onChange={(v) => updateWidget({ moduloDivisor: parseInt(v) || 1 })}
+          />
+          <div style={{
+            background: 'rgba(255, 170, 0, 0.1)',
+            border: '1px solid rgba(255, 170, 0, 0.3)',
+            borderRadius: 4,
+            padding: 8,
+            marginTop: 4,
+            fontSize: 10,
+            color: '#ffaa00',
+          }}>
+            Frame = floor(sensorValue / {widget.moduloDivisor || 1}) % {widget.images.length || 'frameCount'}
+            <br />
+            <span style={{ color: '#888' }}>
+              {widget.moduloDivisor === 1 && 'Updates every second'}
+              {widget.moduloDivisor === 60 && 'Updates every minute'}
+              {widget.moduloDivisor === 3600 && 'Updates every hour'}
+            </span>
+          </div>
+        </>
+      )}
+
       {/* Regenerate in Foundry */}
       <div className="input-group" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #333' }}>
-        <label className="input-label">Gauge Foundry</label>
+        <label className="input-label">{getFoundryName()}</label>
         <Button
           variant="primary"
-          onClick={() => openFoundryForWidget(widget.id, widget.width, widget.height)}
+          onClick={handleOpenFoundry}
           fullWidth
+          disabled={widget.sourceFoundry === 'uploaded'}
         >
           Regenerate at Current Size
         </Button>
         <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
-          Open the Gauge Foundry to generate new frames at {widget.width}x{widget.height}
+          {widget.sourceFoundry === 'uploaded'
+            ? 'Uploaded frames cannot be regenerated'
+            : `Open the ${getFoundryName()} to generate new frames at ${widget.width}x${widget.height}`}
         </div>
       </div>
     </>
