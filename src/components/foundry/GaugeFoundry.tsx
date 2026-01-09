@@ -478,14 +478,26 @@ export const GaugeFoundry: React.FC = () => {
                                                 type="number"
                                                 value={ledArcParams.innerRadius}
                                                 onChange={(v) => updateLedArcParams({ innerRadius: parseFloat(v) || 40 })}
-                                                min={10}
                                             />
                                             <Input
                                                 label="Outer Radius"
                                                 type="number"
                                                 value={ledArcParams.outerRadius}
                                                 onChange={(v) => updateLedArcParams({ outerRadius: parseFloat(v) || 80 })}
-                                                min={20}
+                                            />
+                                        </div>
+                                        <div className="foundry-param-row">
+                                            <Input
+                                                label="Min Value"
+                                                type="number"
+                                                value={ledArcParams.minValue}
+                                                onChange={(v) => updateLedArcParams({ minValue: parseFloat(v) || 0 })}
+                                            />
+                                            <Input
+                                                label="Max Value"
+                                                type="number"
+                                                value={ledArcParams.maxValue}
+                                                onChange={(v) => updateLedArcParams({ maxValue: parseFloat(v) || 100 })}
                                             />
                                         </div>
                                         <div className="foundry-param-row">
@@ -909,6 +921,6 @@ export const GaugeFoundry: React.FC = () => {
                     </span>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };

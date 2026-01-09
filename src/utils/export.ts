@@ -12,7 +12,37 @@ import { useSensorStore } from '@/stores/sensorStore';
  * Export the canvas stage as a PNG image
  */
 export function exportCanvasToPng(stage: Konva.Stage, filename: string = 'panel.png'): void {
+  // Hide editor overlays (selection, grid, etc)
+  const editorNodes = stage.find('.editor-overlay');
+  const gridLayer = stage.findOne('.grid-layer');
+
+  const originalVisibilities = new Map<Konva.Node, boolean>();
+
+  editorNodes.forEach(node => {
+    originalVisibilities.set(node, node.visible());
+    node.hide();
+  });
+
+  if (gridLayer) {
+    originalVisibilities.set(gridLayer, gridLayer.visible());
+    gridLayer.hide();
+  }
+
   const dataUrl = stage.toDataURL({ pixelRatio: 1 });
+
+  // Restore visibilities
+  editorNodes.forEach(node => {
+    if (originalVisibilities.get(node)) {
+      node.show();
+    }
+  });
+
+  if (gridLayer) {
+    if (originalVisibilities.get(gridLayer)) {
+      gridLayer.show();
+    }
+  }
+
   downloadDataUrl(dataUrl, filename);
 }
 

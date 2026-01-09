@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — Half A Giraf</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 120px 24px 160px;
+    }
+
+    header {
+      margin-bottom: 100px;
+      text-align: center;
+    }
+
+    .glyph {
+      font-size: 4.5rem;
+      font-weight: 100;
+      margin-bottom: 28px;
+      letter-spacing: -0.08em;
+      background: linear-gradient(180deg,#ffffff 0%,#777777 70%,#444 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 20px 40px rgba(255,255,255,0.08));
+    }
+
+    h1 {
+      font-size: 3.4rem;
+      font-weight: 200;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #a0a0a0;
+      text-align: center;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 48px;
+    }
+
+    .project-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .project-slider {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+    }
+
+    .project-slides {
+      display: flex;
+      height: 100%;
+      transition: transform 1.4s cubic-bezier(0.65,0,0.35,1);
+    }
+
+    .project-slide {
+      flex: 0 0 100%;
+      height: 100%;
+    }
+
+    .project-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #0a0a0a;
+      display: block;
+    }
+
+    .slider-control {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4);
+      color: #e0e0e0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      z-index: 5;
+      opacity: 0.6;
+      transition: opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .slider-control:hover {
+      opacity: 1;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .slider-prev { left: 12px; }
+    .slider-next { right: 12px; }
+
+    .project-content {
+      padding: 28px 26px 34px;
+    }
+
+    .project-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .project-desc {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #b5b5b5;
+      margin-bottom: 18px;
+    }
+
+    .project-meta {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #6f6f6f;
+    }
+
+    footer {
+      margin-top: 180px;
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: #3a3a3a;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.4rem; }
+      .glyph { font-size: 3.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+
+    <header>
+      <a href="/" style="text-decoration:none; color:inherit;">
+        <div class="glyph">½🦒</div>
+        <h1>Projects</h1>
+      </a>
+      <p class="subtitle">
+        A selection of systems, tools, and platforms I’ve designed and built.
+        These range from production-ready applications to specialist internal tooling.
+      </p>
+    </header>
+
+    <section class="projects-grid">
+
+      <!-- PanelForge -->
+      <article class="project-card">
+        <div class="project-slider" data-slider>
+          <button class="slider-control slider-prev">‹</button>
+          <button class="slider-control slider-next">›</button>
+
+          <div class="project-slides">
+            <div class="project-slide" data-clone>
+              <img src="https://photos.halfagiraf.com/api/v1/t/a57174973ea6fbcdd29f4b8f2a3dc406f74ecde8/hui80rbf/fit_1920" />
+            </div>
+            <div class="project-slide">
+              <img src="https://photos.halfagiraf.com/api/v1/t/68cb8b257be5dfd6f6361ccfc247c2e21fcf85c8/hui80rbf/fit_1920" />
+            </div>
+            <div class="project-slide">
+              <img src="https://photos.halfagiraf.com/api/v1/t/a72457a1fdf5fc1db78ec6a8bed7fdb2858550fb/hui80rbf/fit_1920" />
+            </div>
+            <div class="project-slide">
+              <img src="https://photos.halfagiraf.com/api/v1/t/a57174973ea6fbcdd29f4b8f2a3dc406f74ecde8/hui80rbf/fit_1920" />
+            </div>
+            <div class="project-slide" data-clone>
+              <img src="https://photos.halfagiraf.com/api/v1/t/68cb8b257be5dfd6f6361ccfc247c2e21fcf85c8/hui80rbf/fit_1920" />
+            </div>
+          </div>
+        </div>
+
+        <div class="project-content">
+          <div class="project-title">PanelForge</div>
+          <div class="project-desc">
+            PanelForge is a desktop-first web application for designing, previewing,
+            and simulating AIDA64 SensorPanel layouts without running AIDA64 or
+            owning target hardware.
+            <br><br>
+            It provides a pixel-perfect canvas, a rich widget system, and a built-in
+            sensor simulation engine, allowing users to design complex panels
+            entirely in the browser and export them as images or JSON configurations.
+          </div>
+          <div class="project-meta">
+            React · TypeScript · Konva · Sensor Simulation
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <footer>
+      © Half A Giraf — Projects
+    </footer>
+
+  </main>
+
+  <script>
+    document.querySelectorAll('[data-slider]').forEach(slider => {
+      const track = slider.querySelector('.project-slides');
+      const slides = slider.querySelectorAll('.project-slide');
+      const prev = slider.querySelector('.slider-prev');
+      const next = slider.querySelector('.slider-next');
+
+      let index = 1;
+      let isTransitioning = false;
+      let interval;
+
+      const slideWidth = () => slider.clientWidth;
+
+      const setPosition = (i, animate = true) => {
+        track.style.transition = animate ? 'transform 1.4s cubic-bezier(0.65,0,0.35,1)' : 'none';
+        track.style.transform = `translateX(-${i * slideWidth()}px)`;
+      };
+
+      const nextSlide = () => {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        index++;
+        setPosition(index);
+      };
+
+      const prevSlide = () => {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        index--;
+        setPosition(index);
+      };
+
+      track.addEventListener('transitionend', () => {
+        isTransitioning = false;
+        if (slides[index].dataset.clone !== undefined) {
+          index = index === 0 ? slides.length - 2 : 1;
+          setPosition(index, false);
+        }
+      });
+
+      const start = () => interval = setInterval(nextSlide, 6500);
+      const stop = () => clearInterval(interval);
+
+      next.onclick = () => { stop(); nextSlide(); start(); };
+      prev.onclick = () => { stop(); prevSlide(); start(); };
+
+      slider.onmouseenter = stop;
+      slider.onmouseleave = start;
+
+      window.addEventListener('resize', () => setPosition(index, false));
+
+      setPosition(index, false);
+      start();
+    });
+  </script>
+
+</body>
+</html>

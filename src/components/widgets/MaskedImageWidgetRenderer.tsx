@@ -200,6 +200,7 @@ export const MaskedImageWidgetRenderer: React.FC<MaskedImageWidgetRendererProps>
           stroke="#00aaff"
           strokeWidth={1}
           dash={[3, 3]}
+          name="editor-overlay"
         />
       )}
 
@@ -213,6 +214,7 @@ export const MaskedImageWidgetRenderer: React.FC<MaskedImageWidgetRendererProps>
           stroke="#ff6600"
           strokeWidth={2}
           dash={[5, 5]}
+          name="editor-overlay"
         />
       )}
 
@@ -272,6 +274,7 @@ export const MaskedImageWidgetRenderer: React.FC<MaskedImageWidgetRendererProps>
               width={widget.width}
               height={2}
               fill="#ff0000"
+              name="editor-overlay"
             />
           )}
           {widget.maskDirection === 'top_to_bottom' && (
@@ -281,6 +284,7 @@ export const MaskedImageWidgetRenderer: React.FC<MaskedImageWidgetRendererProps>
               width={widget.width}
               height={2}
               fill="#ff0000"
+              name="editor-overlay"
             />
           )}
           {widget.maskDirection === 'left_to_right' && (
@@ -290,6 +294,7 @@ export const MaskedImageWidgetRenderer: React.FC<MaskedImageWidgetRendererProps>
               width={2}
               height={widget.height}
               fill="#ff0000"
+              name="editor-overlay"
             />
           )}
           {widget.maskDirection === 'right_to_left' && (
@@ -299,6 +304,7 @@ export const MaskedImageWidgetRenderer: React.FC<MaskedImageWidgetRendererProps>
               width={2}
               height={widget.height}
               fill="#ff0000"
+              name="editor-overlay"
             />
           )}
         </>

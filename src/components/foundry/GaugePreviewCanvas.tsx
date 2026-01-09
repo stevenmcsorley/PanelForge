@@ -92,7 +92,6 @@ export const GaugePreviewCanvas: React.FC<GaugePreviewCanvasProps> = ({
 
         const maxRadius = Math.max(
             template !== 'needle' ? ledArcParams.outerRadius : 0,
-            template !== 'led_arc' ? needleParams.needleLength : 0,
             tickParams.enabled ? tickParams.radius : 0
         );
 
@@ -376,7 +375,11 @@ function drawLeds(
     width: number,
     height: number
 ) {
-    const litSegments = Math.round((value / 100) * params.segmentCount);
+    // Normalize value from sensor range to 0-100 percentage
+    const normalizedValue = ((value - params.minValue) / (params.maxValue - params.minValue)) * 100;
+    const clampedValue = Math.max(0, Math.min(100, normalizedValue));
+
+    const litSegments = Math.round((clampedValue / 100) * params.segmentCount);
     const effects = params.effects;
 
     ctx.save();

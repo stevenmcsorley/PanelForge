@@ -8,6 +8,7 @@
 import Konva from 'konva';
 import { BackgroundParams, TickParams, LabelParams, LedArcParams, NeedleParams, ColorSplit, LayerType, EncasingParams } from '@/stores/foundryStore';
 import { drawEncasing } from './encasingRenderer';
+import { applyBulbShapeToArc, applyInsetShadowToArc, applyGlobalLedEffects } from './ledEffects';
 
 /**
  * Get the on/off colors for a segment based on its index and color splits
@@ -335,10 +336,15 @@ export function drawLedTemplate(
         glowStrength,
         arcStartAngle,
         arcEndAngle,
-        colorSplits
+        colorSplits,
+        effects
     } = params;
 
-    const litSegments = Math.round((value / 100) * segmentCount);
+    // Normalize value from sensor range to 0-100 percentage
+    const normalizedValue = ((value - params.minValue) / (params.maxValue - params.minValue)) * 100;
+    const clampedValue = Math.max(0, Math.min(100, normalizedValue));
+
+    const litSegments = Math.round((clampedValue / 100) * segmentCount);
 
     if (orientation === 'arc') {
         const totalArcAngle = arcEndAngle - arcStartAngle;
@@ -360,6 +366,7 @@ export function drawLedTemplate(
                 angle: segmentAngle,
                 rotation: segmentStartAngle,
                 fill: isLit ? segOnColor : segOffColor,
+                opacity: effects.segmentOpacity,
                 shadowColor: isLit ? segOnColor : 'transparent',
                 shadowBlur: isLit ? glowStrength * scale : 0,
                 shadowOpacity: isLit ? 0.8 : 0,
@@ -384,6 +391,7 @@ export function drawLedTemplate(
 
             const rectParams: any = {
                 fill: isLit ? segOnColor : segOffColor,
+                opacity: effects.segmentOpacity,
                 shadowColor: isLit ? segOnColor : 'transparent',
                 shadowBlur: isLit ? glowStrength * scale : 0,
                 shadowOpacity: isLit ? 0.8 : 0,

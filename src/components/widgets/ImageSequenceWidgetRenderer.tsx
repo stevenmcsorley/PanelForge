@@ -126,6 +126,7 @@ export const ImageSequenceWidgetRenderer: React.FC<ImageSequenceWidgetRendererPr
                     stroke="#00aaff"
                     strokeWidth={1}
                     dash={[3, 3]}
+                    name="editor-overlay"
                 />
             )}
 
@@ -139,6 +140,7 @@ export const ImageSequenceWidgetRenderer: React.FC<ImageSequenceWidgetRendererPr
                     stroke="#ff6600"
                     strokeWidth={2}
                     dash={[5, 5]}
+                    name="editor-overlay"
                 />
             )}
 
@@ -193,6 +195,7 @@ export const ImageSequenceWidgetRenderer: React.FC<ImageSequenceWidgetRendererPr
                     fontSize={9}
                     fontFamily="Arial"
                     fill="#888"
+                    name="editor-overlay"
                 />
             )}
         </Group>

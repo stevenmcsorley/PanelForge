@@ -27,11 +27,11 @@ export const RadialSegmentWidgetRenderer: React.FC<RadialSegmentWidgetRendererPr
   // Calculate how many segments should be lit
   const activeCount = widget.sensorBinding
     ? calculateActiveSegments(
-        sensorValue,
-        widget.minValue,
-        widget.maxValue,
-        widget.segmentCount
-      )
+      sensorValue,
+      widget.minValue,
+      widget.maxValue,
+      widget.segmentCount
+    )
     : Math.floor(widget.segmentCount / 2); // Default to half when not bound
 
   // Calculate segment angles
@@ -89,6 +89,7 @@ export const RadialSegmentWidgetRenderer: React.FC<RadialSegmentWidgetRendererPr
           stroke="#00aaff"
           strokeWidth={1}
           dash={[3, 3]}
+          name="editor-overlay"
         />
       )}
 
@@ -102,6 +103,7 @@ export const RadialSegmentWidgetRenderer: React.FC<RadialSegmentWidgetRendererPr
           stroke="#ff6600"
           strokeWidth={2}
           dash={[5, 5]}
+          name="editor-overlay"
         />
       )}
 
@@ -116,6 +118,7 @@ export const RadialSegmentWidgetRenderer: React.FC<RadialSegmentWidgetRendererPr
           width={4}
           height={4}
           fill="#ff0000"
+          name="editor-overlay"
         />
       )}
     </Group>

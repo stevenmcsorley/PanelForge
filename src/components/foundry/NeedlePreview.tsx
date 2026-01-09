@@ -159,7 +159,7 @@ export async function renderNeedleFrame(
     const totalEncasingWidth = rimWidth + sealWidth;
 
     const maxDimension = params.orientation === 'arc'
-        ? Math.max(params.needleLength, tickParams.enabled ? tickParams.radius : 0)
+        ? (tickParams.enabled ? tickParams.radius : 100)
         : Math.max(width, height) / 2;
 
     const availableRadius = Math.min(width, height) / 2 - totalEncasingWidth;

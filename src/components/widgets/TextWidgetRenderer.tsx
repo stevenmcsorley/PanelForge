@@ -66,6 +66,7 @@ export const TextWidgetRenderer: React.FC<TextWidgetRendererProps> = ({
           stroke="#00aaff"
           strokeWidth={1}
           dash={[3, 3]}
+          name="editor-overlay"
         />
       )}
 
@@ -79,6 +80,7 @@ export const TextWidgetRenderer: React.FC<TextWidgetRendererProps> = ({
           stroke="#ff6600"
           strokeWidth={2}
           dash={[5, 5]}
+          name="editor-overlay"
         />
       )}
 

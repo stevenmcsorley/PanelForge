@@ -21,6 +21,7 @@ export { LabelsLayer } from './LabelsLayer';
 export { TickEditor } from './TickEditor';
 export { LabelEditor } from './LabelEditor';
 export { LayerOrderEditor } from './LayerOrderEditor';
+export * from './StaticShapeFoundry';
 export { LedEffectsEditor } from './LedEffectsEditor';
 export { EncasingEditor } from './EncasingEditor';
 

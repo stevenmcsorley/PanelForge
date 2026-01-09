@@ -22,6 +22,7 @@ import {
     ScaleParams,
     ValueLabelParams,
 } from '@/stores/shapeGaugeFoundryStore';
+import { formatSensorValue } from '@/utils/formatting';
 
 // ============================================================================
 // Helper Functions
@@ -209,21 +210,36 @@ function applyInsetEffect(
     y: number,
     width: number,
     height: number,
+    params: { color: string; opacity: number; distance: number; blur: number },
     radius: number = 0
 ): void {
     ctx.save();
 
-    // Inner shadow effect
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 4;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
+    // Parse color to apply opacity
+    // Assuming hex for now, but really should use helper
+    const r = parseInt(params.color.slice(1, 3), 16);
+    const g = parseInt(params.color.slice(3, 5), 16);
+    const b = parseInt(params.color.slice(5, 7), 16);
+    const shadowColor = `rgba(${r}, ${g}, ${b}, ${params.opacity / 100})`;
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-    ctx.lineWidth = 2;
+    // Inner shadow effect logic
+    // We clip to the shape, then draw a shadow casting outline essentially
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, radius);
+    ctx.clip();
+
+    ctx.shadowColor = shadowColor;
+    ctx.shadowBlur = params.blur;
+    ctx.shadowOffsetX = params.distance;
+    ctx.shadowOffsetY = params.distance;
+
+    // Stroke slightly outside to cast shadow inside
+    ctx.strokeStyle = shadowColor;
+    ctx.lineWidth = 2; // Arbitrary, just needs to cast shadow
 
     ctx.beginPath();
-    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius);
+    // Draw slightly outside the clip area
+    ctx.roundRect(x - 2, y - 2, width + 4, height + 4, radius);
     ctx.stroke();
 
     ctx.restore();
@@ -248,12 +264,19 @@ function renderHorizontalBar(
     const fillWidth = (value / 100) * barWidth;
     const cornerRadius = Math.min(params.cornerRadius, barHeight / 2);
 
+    // Calculate fill position based on Reversal
+    let fillX = barX;
+    if (params.reversed) {
+        fillX = barX + barWidth - fillWidth;
+    }
+
     // Get fill color
     let fillColor: string | CanvasGradient;
     if (params.useColorZones) {
         fillColor = getColorForValue(value, params.colorZones, params.fillColor);
     } else if (params.gradient.enabled) {
-        fillColor = createGradient(ctx, params.gradient, barX, barY, fillWidth, barHeight);
+        // Gradient also needs to obey reversal if it's linear direction
+        fillColor = createGradient(ctx, params.gradient, fillX, barY, fillWidth, barHeight);
     } else {
         fillColor = params.fillColor;
     }
@@ -265,8 +288,8 @@ function renderHorizontalBar(
         ctx.roundRect(barX, barY, barWidth, barHeight, cornerRadius);
         ctx.fill();
 
-        if (params.effects.inset) {
-            applyInsetEffect(ctx, barX, barY, barWidth, barHeight, cornerRadius);
+        if (params.effects.inset.enabled) {
+            applyInsetEffect(ctx, barX, barY, barWidth, barHeight, params.effects.inset, cornerRadius);
         }
     }
 
@@ -284,7 +307,7 @@ function renderHorizontalBar(
 
         ctx.fillStyle = fillColor;
         ctx.beginPath();
-        ctx.roundRect(barX, barY, fillWidth, barHeight, cornerRadius);
+        ctx.roundRect(fillX, barY, fillWidth, barHeight, cornerRadius);
         ctx.fill();
 
         clearGlow(ctx);
@@ -292,13 +315,13 @@ function renderHorizontalBar(
         // Apply effects
         if (params.effects.glossy) {
             ctx.beginPath();
-            ctx.roundRect(barX, barY, fillWidth, barHeight, cornerRadius);
+            ctx.roundRect(fillX, barY, fillWidth, barHeight, cornerRadius);
             ctx.clip();
-            applyGlossyEffect(ctx, barX, barY, fillWidth, barHeight);
+            applyGlossyEffect(ctx, fillX, barY, fillWidth, barHeight);
         }
 
         if (params.effects.metallic) {
-            applyMetallicEffect(ctx, barX, barY, fillWidth, barHeight);
+            applyMetallicEffect(ctx, fillX, barY, fillWidth, barHeight);
         }
 
         ctx.restore();
@@ -320,12 +343,20 @@ function renderVerticalBar(
     const fillHeight = (value / 100) * barHeight;
     const cornerRadius = Math.min(params.cornerRadius, barWidth / 2);
 
+    // Calculate fill position for reversal
+    // Normal: Bottom to Top (fillY = barY + barHeight - fillHeight)
+    // Reversed: Top to Bottom (fillY = barY)
+    let fillY = barY + barHeight - fillHeight;
+    if (params.reversed) {
+        fillY = barY;
+    }
+
     // Get fill color
     let fillColor: string | CanvasGradient;
     if (params.useColorZones) {
         fillColor = getColorForValue(value, params.colorZones, params.fillColor);
     } else if (params.gradient.enabled) {
-        fillColor = createGradient(ctx, params.gradient, barX, barY + barHeight - fillHeight, barWidth, fillHeight);
+        fillColor = createGradient(ctx, params.gradient, barX, fillY, barWidth, fillHeight);
     } else {
         fillColor = params.fillColor;
     }
@@ -337,12 +368,12 @@ function renderVerticalBar(
         ctx.roundRect(barX, barY, barWidth, barHeight, cornerRadius);
         ctx.fill();
 
-        if (params.effects.inset) {
-            applyInsetEffect(ctx, barX, barY, barWidth, barHeight, cornerRadius);
+        if (params.effects.inset.enabled) {
+            applyInsetEffect(ctx, barX, barY, barWidth, barHeight, params.effects.inset, cornerRadius);
         }
     }
 
-    // Draw fill (from bottom)
+    // Draw fill
     if (value > 0) {
         ctx.save();
 
@@ -355,16 +386,16 @@ function renderVerticalBar(
 
         ctx.fillStyle = fillColor;
         ctx.beginPath();
-        ctx.roundRect(barX, barY + barHeight - fillHeight, barWidth, fillHeight, cornerRadius);
+        ctx.roundRect(barX, fillY, barWidth, fillHeight, cornerRadius);
         ctx.fill();
 
         clearGlow(ctx);
 
         if (params.effects.glossy) {
             ctx.beginPath();
-            ctx.roundRect(barX, barY + barHeight - fillHeight, barWidth, fillHeight, cornerRadius);
+            ctx.roundRect(barX, fillY, barWidth, fillHeight, cornerRadius);
             ctx.clip();
-            applyGlossyEffect(ctx, barX, barY + barHeight - fillHeight, barWidth, fillHeight);
+            applyGlossyEffect(ctx, barX, fillY, barWidth, fillHeight);
         }
 
         ctx.restore();
@@ -564,7 +595,21 @@ function renderArc(
     const startAngle = degreesToRadians(angles.start - 90); // -90 to start from top
     const endAngle = degreesToRadians(angles.end - 90);
     const totalArc = endAngle - startAngle;
-    const fillAngle = startAngle + (value / 100) * totalArc;
+
+    // Calculate fill range based on Reversal
+    let fillStart = startAngle;
+    let fillEnd = startAngle;
+
+
+    if (params.reversed) {
+        // If reversed, we start at End and go "Backwards" 
+        // OR we just define the arc segment from (end - val) to end
+        fillStart = endAngle - (value / 100) * totalArc;
+        fillEnd = endAngle;
+    } else {
+        fillStart = startAngle;
+        fillEnd = startAngle + (value / 100) * totalArc;
+    }
 
     // Get fill color
     let fillColor: string | CanvasGradient;
@@ -590,16 +635,39 @@ function renderArc(
         ctx.closePath();
         ctx.fill();
 
-        if (params.effects.inset) {
+        if (params.effects.inset.enabled) {
+            const { color, opacity, distance, blur } = params.effects.inset;
             ctx.save();
-            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            const r = parseInt(color.slice(1, 3), 16);
+            const g = parseInt(color.slice(3, 5), 16);
+            const b = parseInt(color.slice(5, 7), 16);
+            const shadowColor = `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
+
+            ctx.shadowColor = shadowColor;
+            ctx.shadowBlur = blur;
+            ctx.shadowOffsetX = distance;
+            ctx.shadowOffsetY = distance;
+
+            // Stroke inner/outer boundaries
+            ctx.strokeStyle = shadowColor;
             ctx.lineWidth = 2;
+
+            // Clip to track for clean shadow
             ctx.beginPath();
-            ctx.arc(centerX, centerY, effectiveOuterRadius - 1, startAngle, endAngle);
-            ctx.stroke();
+            ctx.arc(centerX, centerY, effectiveOuterRadius, startAngle, endAngle);
+            ctx.arc(centerX, centerY, effectiveInnerRadius, endAngle, startAngle, true);
+            ctx.closePath();
+            ctx.clip();
+
+            // Draw stroke slightly outside to cast in
             ctx.beginPath();
-            ctx.arc(centerX, centerY, effectiveInnerRadius + 1, startAngle, endAngle);
+            ctx.arc(centerX, centerY, effectiveOuterRadius + 2, startAngle, endAngle);
             ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, effectiveInnerRadius - 2, startAngle, endAngle);
+            ctx.stroke();
+
             ctx.restore();
         }
     }
@@ -617,8 +685,8 @@ function renderArc(
 
         ctx.fillStyle = fillColor;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, effectiveOuterRadius, startAngle, fillAngle);
-        ctx.arc(centerX, centerY, effectiveInnerRadius, fillAngle, startAngle, true);
+        ctx.arc(centerX, centerY, effectiveOuterRadius, fillStart, fillEnd);
+        ctx.arc(centerX, centerY, effectiveInnerRadius, fillEnd, fillStart, true);
         ctx.closePath();
         ctx.fill();
 
@@ -626,8 +694,8 @@ function renderArc(
 
         if (params.effects.glossy) {
             ctx.beginPath();
-            ctx.arc(centerX, centerY, effectiveOuterRadius, startAngle, fillAngle);
-            ctx.arc(centerX, centerY, effectiveInnerRadius, fillAngle, startAngle, true);
+            ctx.arc(centerX, centerY, effectiveOuterRadius, fillStart, fillEnd);
+            ctx.arc(centerX, centerY, effectiveInnerRadius, fillEnd, fillStart, true);
             ctx.closePath();
             ctx.clip();
             applyGlossyEffect(ctx, 0, 0, width, height, true, centerX, centerY, effectiveOuterRadius, effectiveInnerRadius);
@@ -673,7 +741,9 @@ function renderSegmentedArc(
     for (let i = 0; i < segmentCount; i++) {
         const segmentStart = startAngle + i * (segmentArcDegrees + segmentGapDegrees);
         const segmentEnd = segmentStart + segmentArcDegrees;
-        const isActive = i < activeSegments;
+        const isActive = params.reversed
+            ? i >= (segmentCount - activeSegments)
+            : i < activeSegments;
         const segmentValue = ((i + 1) / segmentCount) * 100;
 
         ctx.save();
@@ -745,9 +815,14 @@ function renderValueLabel(
 ): void {
     if (!labelParams.enabled) return;
 
-    const text = labelParams.showUnit
-        ? `${value.toFixed(labelParams.decimals)}${labelParams.unit}`
-        : value.toFixed(labelParams.decimals);
+    // Use format string if available, otherwise fallback to legacy decimals+unit
+    let text = '';
+    if (labelParams.format) {
+        text = formatSensorValue(labelParams.format, value);
+    } else {
+        const valStr = value.toFixed(labelParams.decimals);
+        text = labelParams.showUnit ? `${valStr}${labelParams.unit}` : valStr;
+    }
 
     ctx.save();
     ctx.font = `${labelParams.fontSize}px ${labelParams.fontFamily}`;
@@ -798,6 +873,27 @@ export function renderShapeGauge(
         ctx.fillRect(0, 0, width, height);
     }
 
+    // Apply Drop Shadow to the entire shape group
+    ctx.save();
+    // Helper to calculate shadow offset
+    if (shapeParams.dropShadow?.enabled) {
+        const { color, opacity, angle, distance, blur } = shapeParams.dropShadow;
+        const radianAngle = (angle * Math.PI) / 180;
+        const offsetX = Math.cos(radianAngle) * distance;
+        const offsetY = Math.sin(radianAngle) * distance;
+
+        // Convert hex color to rgba for opacity if needed, or simple hex if opacity handled elsewhere
+        // Using a simple hexToRgb helper or assuming hex + opacity calculation
+        const r = parseInt(color.slice(1, 3), 16);
+        const g = parseInt(color.slice(3, 5), 16);
+        const b = parseInt(color.slice(5, 7), 16);
+
+        ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
+        ctx.shadowBlur = blur;
+        ctx.shadowOffsetX = offsetX;
+        ctx.shadowOffsetY = offsetY;
+    }
+
     const isBar = shapeParams.shapeType === 'horizontal_bar' || shapeParams.shapeType === 'vertical_bar';
     const isVertical = shapeParams.shapeType === 'vertical_bar';
     const isSegmented = shapeParams.fillMode === 'segmented' || shapeParams.fillMode === 'chunky';
@@ -818,6 +914,9 @@ export function renderShapeGauge(
             renderArc(ctx, value, width, height, shapeParams);
         }
     }
+
+    // Restore context (removes shadow settings)
+    ctx.restore();
 
     // Render scale
     renderScale(ctx, width, height, shapeParams, scaleParams);

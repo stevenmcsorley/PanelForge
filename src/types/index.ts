@@ -200,6 +200,10 @@ export interface BaseWidget {
   name: string;
   // AIDA64 visibility rules - evaluated per tick
   visibilityRule: VisibilityRule;
+
+  // Foundry metadata for re-editing
+  sourceFoundry?: FoundrySource;
+  foundryParams?: FoundryParams;
 }
 
 export interface TextWidget extends BaseWidget {
@@ -329,7 +333,7 @@ export interface MaskedImageWidget extends BaseWidget {
  * - Only the active frame is rendered at any time
  */
 // Source foundry that created the ImageSequenceWidget
-export type FoundrySource = 'gauge' | 'clock' | 'lcd' | 'shape' | 'uploaded' | null;
+export type FoundrySource = 'gauge' | 'clock' | 'lcd' | 'shape' | 'static_shape' | 'uploaded' | null;
 
 // Foundry parameters stored with widget for regeneration
 // This is a union type that can hold params from any foundry
@@ -350,11 +354,8 @@ export interface ImageSequenceWidget extends BaseWidget {
   useModulo: boolean;
   // Divisor applied before modulo (for minutes: 60, for hours: 3600)
   // frame = floor(sensorValue / moduloDivisor) % frameCount
+  // frame = floor(sensorValue / moduloDivisor) % frameCount
   moduloDivisor: number;
-  // Track which foundry created this widget for regeneration
-  sourceFoundry?: FoundrySource;
-  // Store foundry parameters for regeneration (persisted in JSON export)
-  foundryParams?: FoundryParams;
 }
 
 /**

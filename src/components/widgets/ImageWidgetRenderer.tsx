@@ -48,12 +48,12 @@ export const ImageWidgetRenderer: React.FC<ImageWidgetRendererProps> = ({
   // Calculate rotation
   const rotation = widget.rotationEnabled && widget.sensorBinding
     ? mapRange(
-        sensorValue,
-        widget.rotationMinValue,
-        widget.rotationMaxValue,
-        widget.rotationMinAngle,
-        widget.rotationMaxAngle
-      )
+      sensorValue,
+      widget.rotationMinValue,
+      widget.rotationMaxValue,
+      widget.rotationMinAngle,
+      widget.rotationMaxAngle
+    )
     : widget.rotation;
 
   // Anchor point for rotation
@@ -88,6 +88,7 @@ export const ImageWidgetRenderer: React.FC<ImageWidgetRendererProps> = ({
           stroke="#00aaff"
           strokeWidth={1}
           dash={[3, 3]}
+          name="editor-overlay"
         />
       )}
 
@@ -101,6 +102,7 @@ export const ImageWidgetRenderer: React.FC<ImageWidgetRendererProps> = ({
           stroke="#ff6600"
           strokeWidth={2}
           dash={[5, 5]}
+          name="editor-overlay"
         />
       )}
 
@@ -136,6 +138,7 @@ export const ImageWidgetRenderer: React.FC<ImageWidgetRendererProps> = ({
           width={6}
           height={6}
           fill="#ff0000"
+          name="editor-overlay"
         />
       )}
     </Group>

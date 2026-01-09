@@ -73,13 +73,13 @@ export const ImageTransformWidgetRenderer: React.FC<ImageTransformWidgetRenderer
   //                 rotation = lerp(minAngle, maxAngle, t)
   const targetRotation = widget.sensorBinding
     ? calculateTransformRotation(
-        sensorValue,
-        widget.minValue,
-        widget.maxValue,
-        widget.minAngle,
-        widget.maxAngle,
-        widget.clampValue
-      )
+      sensorValue,
+      widget.minValue,
+      widget.maxValue,
+      widget.minAngle,
+      widget.maxAngle,
+      widget.clampValue
+    )
     : widget.minAngle; // Default to minAngle when not bound
 
   // Apply smoothing if enabled
@@ -129,6 +129,7 @@ export const ImageTransformWidgetRenderer: React.FC<ImageTransformWidgetRenderer
           stroke="#00aaff"
           strokeWidth={1}
           dash={[3, 3]}
+          name="editor-overlay"
         />
       )}
 
@@ -142,6 +143,7 @@ export const ImageTransformWidgetRenderer: React.FC<ImageTransformWidgetRenderer
           stroke="#ff6600"
           strokeWidth={2}
           dash={[5, 5]}
+          name="editor-overlay"
         />
       )}
 
@@ -181,6 +183,7 @@ export const ImageTransformWidgetRenderer: React.FC<ImageTransformWidgetRenderer
             fill="#ff0000"
             stroke="#ffffff"
             strokeWidth={1}
+            name="editor-overlay"
           />
           {/* Rotation arc preview */}
           <Rect
@@ -189,6 +192,7 @@ export const ImageTransformWidgetRenderer: React.FC<ImageTransformWidgetRenderer
             width={4}
             height={20}
             fill="rgba(255, 0, 0, 0.5)"
+            name="editor-overlay"
           />
         </>
       )}

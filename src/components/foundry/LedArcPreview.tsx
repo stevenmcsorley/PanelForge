@@ -216,6 +216,63 @@ export async function renderLedArcFrame(
 
     layer.draw();
 
+    // Apply LED effects if enabled
+    if (params.effects && (params.effects.bulbShapeEnabled || params.effects.insetShadowEnabled || params.effects.dustEnabled || params.effects.glassOverlayEnabled)) {
+        const canvas = stage.toCanvas();
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            // Apply effects to each segment
+            if (params.orientation === 'arc') {
+                const totalArcAngle = params.arcEndAngle - params.arcStartAngle;
+                const totalGapAngle = params.segmentGap * (params.segmentCount - 1);
+                const segmentAngle = (totalArcAngle - totalGapAngle) / params.segmentCount;
+
+                // Normalize value
+                const normalizedValue = ((value - params.minValue) / (params.maxValue - params.minValue)) * 100;
+                const clampedValue = Math.max(0, Math.min(100, normalizedValue));
+                const litSegments = Math.round((clampedValue / 100) * params.segmentCount);
+
+                for (let i = 0; i < params.segmentCount; i++) {
+                    const segmentStartAngle = params.arcStartAngle + i * (segmentAngle + params.segmentGap);
+                    const segmentEndAngle = segmentStartAngle + segmentAngle;
+                    const isLit = i < litSegments;
+
+                    // Only apply effects to lit segments for better performance
+                    if (isLit || params.effects.segmentOpacity > 0.5) {
+                        if (params.effects.bulbShapeEnabled) {
+                            const { applyBulbShapeToArc } = await import('./ledEffects');
+                            applyBulbShapeToArc(
+                                ctx, centerX, centerY,
+                                params.innerRadius * scale,
+                                params.outerRadius * scale,
+                                segmentStartAngle, segmentEndAngle,
+                                params.effects.bulbIntensity
+                            );
+                        }
+
+                        if (params.effects.insetShadowEnabled) {
+                            const { applyInsetShadowToArc } = await import('./ledEffects');
+                            applyInsetShadowToArc(
+                                ctx, centerX, centerY,
+                                params.innerRadius * scale,
+                                params.outerRadius * scale,
+                                segmentStartAngle, segmentEndAngle,
+                                params.effects.insetShadowDepth * scale,
+                                params.effects.insetShadowColor
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Apply global effects
+            if (params.effects.dustEnabled || params.effects.glassOverlayEnabled) {
+                const { applyGlobalLedEffects } = await import('./ledEffects');
+                applyGlobalLedEffects(ctx, params.effects, width, height);
+            }
+        }
+    }
+
     // Apply encasing if provided
     let dataUrl: string;
     if (encasingParams && (encasingParams.rim.enabled || encasingParams.glass.enabled || encasingParams.screws.enabled || encasingParams.rubberSeal.enabled)) {

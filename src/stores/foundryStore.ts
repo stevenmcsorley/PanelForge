@@ -54,6 +54,8 @@ export interface LedArcParams {
     orientation: 'arc' | 'horizontal' | 'vertical';
     colorSplits: ColorSplit[];  // Optional color splits (empty = no splits)
     effects: LedEffectsParams;  // Texture and blending effects
+    minValue: number;           // Minimum sensor value (e.g., 0 for 0 RPM)
+    maxValue: number;           // Maximum sensor value (e.g., 5000 for 5000 RPM)
 }
 
 export interface NeedleParams {
@@ -313,6 +315,8 @@ const DEFAULT_LED_ARC_PARAMS: LedArcParams = {
     orientation: 'arc',
     colorSplits: [],
     effects: { ...DEFAULT_LED_EFFECTS },
+    minValue: 0,
+    maxValue: 100,
 };
 
 const DEFAULT_NEEDLE_PARAMS: NeedleParams = {

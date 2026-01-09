@@ -8,11 +8,12 @@
  * - Visibility rule editor for all widgets
  */
 
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { useWidgetStore } from '@/stores';
 import { useFoundryStore } from '@/stores/foundryStore';
 import { useLcdGaugeFoundryStore } from '@/stores/lcdGaugeFoundryStore';
 import { useShapeGaugeFoundryStore } from '@/stores/shapeGaugeFoundryStore';
+import { useStaticShapeFoundryStore } from '@/stores/staticShapeFoundryStore';
 import { useClockFoundryStore } from '@/stores/clockFoundryStore';
 import {
   TextWidget,
@@ -30,7 +31,7 @@ import {
   MaskDirection,
 } from '@/types';
 import { Input, Select, Slider, Checkbox, Button } from '@/components/ui';
-import { exportFramesToZip } from '@/utils/aida64Export';
+
 
 export const WidgetPropertiesPanel: React.FC = () => {
   const { widgets, selectedWidgetId, updateWidget } = useWidgetStore();
@@ -64,6 +65,24 @@ export const WidgetPropertiesPanel: React.FC = () => {
           <span className="deprecated-badge">DEPRECATED</span>
         )}
       </div>
+
+      {/* Static Shape Edit Button */}
+      {widget.type === 'image' && (widget as any).sourceFoundry === 'static_shape' && (
+        <div style={{ marginBottom: 16 }}>
+          <Button
+            variant="primary"
+            fullWidth
+            onClick={() => {
+              const params = (widget as any).foundryParams;
+              if (params) {
+                useStaticShapeFoundryStore.getState().loadForEdit(widget.id, params);
+              }
+            }}
+          >
+            Edit Structure
+          </Button>
+        </div>
+      )}
 
       {/* Deprecation warning */}
       {isDeprecated && (
@@ -878,35 +897,10 @@ const ImageSequenceWidgetProperties: React.FC<ImageSequenceWidgetPropertiesProps
   updateWidget,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportProgress, setExportProgress] = useState(0);
   const { openFoundryForWidget } = useFoundryStore();
   const { openLcdGaugeFoundryForWidget } = useLcdGaugeFoundryStore();
   const { openShapeGaugeFoundryForWidget } = useShapeGaugeFoundryStore();
   const { openClockFoundryForWidget } = useClockFoundryStore();
-
-  // Export frames as ZIP
-  const handleExportZip = useCallback(async () => {
-    if (widget.images.length === 0) return;
-
-    setIsExporting(true);
-    setExportProgress(0);
-
-    try {
-      await exportFramesToZip(
-        {
-          frames: widget.images,
-          prefix: 'frame',
-          padding: 3,
-          gaugeName: widget.name || 'image_sequence',
-        },
-        (progress) => setExportProgress(Math.round(progress * 100))
-      );
-    } finally {
-      setIsExporting(false);
-      setExportProgress(0);
-    }
-  }, [widget.images, widget.name]);
 
   // Route to the correct foundry based on sourceFoundry
   const handleOpenFoundry = useCallback(() => {

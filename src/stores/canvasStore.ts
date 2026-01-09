@@ -60,6 +60,8 @@ interface CanvasState {
   setGridSize: (size: number) => void;
   toggleSafeArea: () => void;
   setSafeAreaMargin: (margin: number) => void;
+
+  // Viewport Actions
   setZoom: (zoom: number) => void;
   setPan: (x: number, y: number) => void;
   resetView: () => void;
@@ -112,7 +114,6 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setGridSize: (gridSize) => set({ gridSize }),
 
   toggleSafeArea: () => set((state) => ({ showSafeArea: !state.showSafeArea })),
-
   setSafeAreaMargin: (safeAreaMargin) => set({ safeAreaMargin }),
 
   setZoom: (zoom) => set({ zoom: Math.min(Math.max(zoom, 0.25), 4) }),

@@ -9,8 +9,40 @@ import { Input, Slider, Button } from '@/components/ui';
 import { generateProceduralTexture, TEXTURE_OPTIONS } from './proceduralTextures';
 import { applyBackgroundEffects, applyColorOverlay } from './imageFilters';
 
+const DebouncedColorInput: React.FC<{
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+}> = ({ label, value, onChange }) => {
+    const [localValue, setLocalValue] = React.useState(value);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Sync with external updates
+    useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+
+    const handleChange = useCallback((newValue: string) => {
+        setLocalValue(newValue);
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            onChange(newValue);
+        }, 50);
+    }, [onChange]);
+
+    return (
+        <Input
+            label={label}
+            type="color"
+            value={localValue}
+            onChange={handleChange}
+        />
+    );
+};
+
 export const BackgroundFoundry: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [isGenerating, setIsGenerating] = React.useState(false);
     const {
         outputWidth,
         outputHeight,
@@ -52,19 +84,24 @@ export const BackgroundFoundry: React.FC = () => {
                 overlayBlendMode as GlobalCompositeOperation
             );
         }
+        setIsGenerating(false);
     }, [proceduralTexture, imageEffects, overlayColor, overlayOpacity, overlayBlendMode]);
 
-    useEffect(() => {
-        generatePreview();
-    }, [generatePreview]);
-
-    // Update canvas size
+    // Update canvas size and debounce generation
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
-            canvas.width = outputWidth;
-            canvas.height = outputHeight;
-            generatePreview();
+            if (canvas.width !== outputWidth || canvas.height !== outputHeight) {
+                canvas.width = outputWidth;
+                canvas.height = outputHeight;
+            }
+
+            setIsGenerating(true);
+            const timeoutId = setTimeout(() => {
+                generatePreview();
+            }, 100); // 100ms debounce
+
+            return () => clearTimeout(timeoutId);
         }
     }, [outputWidth, outputHeight, generatePreview]);
 
@@ -100,6 +137,7 @@ export const BackgroundFoundry: React.FC = () => {
                     className="foundry-canvas-container"
                     style={{
                         background: 'repeating-conic-gradient(#333 0% 25%, #222 0% 50%) 50% / 16px 16px',
+                        position: 'relative',
                     }}
                 >
                     <canvas
@@ -110,8 +148,26 @@ export const BackgroundFoundry: React.FC = () => {
                             maxWidth: '280px',
                             maxHeight: '280px',
                             objectFit: 'contain',
+                            filter: isGenerating ? 'blur(2px)' : 'none',
+                            transition: 'filter 0.2s',
                         }}
                     />
+                    {isGenerating && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            background: 'rgba(0,0,0,0.6)',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            color: 'white',
+                            pointerEvents: 'none',
+                        }}>
+                            Updating...
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
@@ -152,15 +208,13 @@ export const BackgroundFoundry: React.FC = () => {
 
                     <div style={{ marginTop: '12px' }}>
                         <div className="foundry-param-row">
-                            <Input
+                            <DebouncedColorInput
                                 label="Primary Color"
-                                type="color"
                                 value={proceduralTexture.primaryColor}
                                 onChange={(v) => updateProceduralTexture({ primaryColor: v })}
                             />
-                            <Input
+                            <DebouncedColorInput
                                 label="Secondary Color"
-                                type="color"
                                 value={proceduralTexture.secondaryColor}
                                 onChange={(v) => updateProceduralTexture({ secondaryColor: v })}
                             />
@@ -245,9 +299,8 @@ export const BackgroundFoundry: React.FC = () => {
                     <div className="foundry-param-group-title">Color Overlay</div>
 
                     <div className="foundry-param-row">
-                        <Input
+                        <DebouncedColorInput
                             label="Color"
-                            type="color"
                             value={overlayColor}
                             onChange={(v) => updateBackgroundFoundryParams({ overlayColor: v })}
                         />

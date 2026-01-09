@@ -13,7 +13,9 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { useShapeGaugeFoundryStore, ShapeType, FillMode } from '@/stores/shapeGaugeFoundryStore';
 import { useWidgetStore, createDefaultImageSequenceWidget } from '@/stores';
 import { Button, Slider, Input, Checkbox, Select } from '@/components/ui';
+
 import { renderShapeGauge, generateShapeGaugeFrames } from './shapeGaugeRenderUtils';
+import { exportFramesToZip, exportFramesIndividually, estimateZipSize, formatBytes } from '@/utils/aida64Export';
 
 // ============================================================================
 // Preview Canvas Component
@@ -148,6 +150,12 @@ const ShapeParamsEditor: React.FC = () => {
                     { value: 'chunky', label: 'Chunky' },
                 ]}
                 onChange={(v) => updateShapeParams({ fillMode: v as FillMode })}
+            />
+
+            <Checkbox
+                label="Reverse Direction"
+                checked={shapeParams.reversed}
+                onChange={(v) => updateShapeParams({ reversed: v })}
             />
 
             <Slider
@@ -402,8 +410,8 @@ const GlowEditor: React.FC = () => {
 // ============================================================================
 
 const EffectsEditor: React.FC = () => {
-    const { shapeParams, updateEffects } = useShapeGaugeFoundryStore();
-    const { effects } = shapeParams;
+    const { shapeParams, updateEffects, updateGlow } = useShapeGaugeFoundryStore();
+    const { effects, glow } = shapeParams;
 
     return (
         <div className="foundry-param-group">
@@ -420,11 +428,83 @@ const EffectsEditor: React.FC = () => {
                     checked={effects.metallic}
                     onChange={(v) => updateEffects({ metallic: v })}
                 />
+            </div>
+
+            <div style={{ marginTop: 12, borderTop: '1px solid #333', paddingTop: 12 }}>
                 <Checkbox
-                    label="Inset"
-                    checked={effects.inset}
-                    onChange={(v) => updateEffects({ inset: v })}
+                    label="LED Glow"
+                    checked={glow.enabled}
+                    onChange={(v) => updateGlow({ enabled: v })}
                 />
+
+                {glow.enabled && (
+                    <div style={{ paddingLeft: 8, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <Input
+                            label="Glow Color"
+                            type="color"
+                            value={glow.color}
+                            onChange={(v) => updateGlow({ color: v })}
+                        />
+                        <div className="foundry-param-row">
+                            <Slider
+                                label="Strength"
+                                value={glow.strength}
+                                onChange={(v) => updateGlow({ strength: v })}
+                                min={0}
+                                max={30}
+                            />
+                            <Slider
+                                label="Spread"
+                                value={glow.spread}
+                                onChange={(v) => updateGlow({ spread: v })}
+                                min={0}
+                                max={20}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div style={{ marginTop: 12, borderTop: '1px solid #333', paddingTop: 12 }}>
+                <Checkbox
+                    label="Inner Shadow (Inset)"
+                    checked={effects.inset.enabled}
+                    onChange={(v) => updateEffects({ inset: { ...effects.inset, enabled: v } })}
+                />
+
+                {effects.inset.enabled && (
+                    <div style={{ paddingLeft: 8, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <Input
+                            label="Color"
+                            type="color"
+                            value={effects.inset.color}
+                            onChange={(v) => updateEffects({ inset: { ...effects.inset, color: v } })}
+                        />
+                        <div className="foundry-param-row">
+                            <Slider
+                                label="Opacity"
+                                value={effects.inset.opacity}
+                                onChange={(v) => updateEffects({ inset: { ...effects.inset, opacity: v } })}
+                                min={0}
+                                max={100}
+                            />
+                            <Slider
+                                label="Range"
+                                value={effects.inset.distance}
+                                onChange={(v) => updateEffects({ inset: { ...effects.inset, distance: v } })}
+                                min={0}
+                                max={20}
+                            />
+                        </div>
+                        <Slider
+                            label="Spread"
+                            value={effects.inset.blur}
+                            onChange={(v) => updateEffects({ inset: { ...effects.inset, blur: v } })}
+                            min={0}
+                            max={20}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -513,6 +593,70 @@ const ColorZonesEditor: React.FC = () => {
 };
 
 // ============================================================================
+// Drop Shadow Editor
+// ============================================================================
+
+const DropShadowEditor: React.FC = () => {
+    const { shapeParams, updateDropShadow } = useShapeGaugeFoundryStore();
+    const { dropShadow } = shapeParams;
+
+    return (
+        <div className="foundry-param-group">
+            <div className="foundry-param-group-title">Drop Shadow</div>
+
+            <Checkbox
+                label="Enable Shadow"
+                checked={dropShadow.enabled}
+                onChange={(v) => updateDropShadow({ enabled: v })}
+            />
+
+            {dropShadow.enabled && (
+                <>
+                    <Input
+                        label="Shadow Color"
+                        type="color"
+                        value={dropShadow.color}
+                        onChange={(v) => updateDropShadow({ color: v })}
+                    />
+                    <div className="foundry-param-row">
+                        <Slider
+                            label="Opacity"
+                            value={dropShadow.opacity}
+                            onChange={(v) => updateDropShadow({ opacity: v })}
+                            min={0}
+                            max={100}
+                        />
+                        <Slider
+                            label="Angle"
+                            value={dropShadow.angle}
+                            onChange={(v) => updateDropShadow({ angle: v })}
+                            min={0}
+                            max={360}
+                        />
+                    </div>
+                    <div className="foundry-param-row">
+                        <Slider
+                            label="Range (Dist)"
+                            value={dropShadow.distance}
+                            onChange={(v) => updateDropShadow({ distance: v })}
+                            min={0}
+                            max={50}
+                        />
+                        <Slider
+                            label="Size (Blur)"
+                            value={dropShadow.blur}
+                            onChange={(v) => updateDropShadow({ blur: v })}
+                            min={0}
+                            max={50}
+                        />
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+// ============================================================================
 // Main ShapeGaugeFoundry Component
 // ============================================================================
 
@@ -537,7 +681,13 @@ export const ShapeGaugeFoundry: React.FC = () => {
         setFrameCount,
         setTransparentBackground,
         setGeneratedFrames,
+
         setGenerating,
+        exportOptions,
+        updateExportOptions,
+        isExporting,
+        setExporting,
+        exportProgress,
     } = useShapeGaugeFoundryStore();
 
     const { addWidget, updateWidget } = useWidgetStore();
@@ -599,7 +749,49 @@ export const ShapeGaugeFoundry: React.FC = () => {
         closeShapeGaugeFoundry();
     }, [generatedFrames, outputWidth, outputHeight, frameCount, useTransparentBackground, shapeParams, scaleParams, valueLabelParams, addWidget, updateWidget, editingWidgetId, closeShapeGaugeFoundry]);
 
+    // Export to AIDA64 (ZIP)
+    const handleExportZip = useCallback(async () => {
+        if (generatedFrames.length === 0) return;
+
+        setExporting(true, 0);
+        try {
+            await exportFramesToZip(
+                {
+                    frames: generatedFrames,
+                    prefix: exportOptions.prefix,
+                    padding: exportOptions.padding,
+                    gaugeName: shapeParams.shapeType,
+                },
+                (progress) => setExporting(true, progress)
+            );
+        } finally {
+            setExporting(false, 0);
+        }
+    }, [generatedFrames, exportOptions, shapeParams.shapeType, setExporting]);
+
+    // Export to AIDA64 (Individual files)
+    const handleExportIndividual = useCallback(async () => {
+        if (generatedFrames.length === 0) return;
+
+        setExporting(true, 0);
+        try {
+            await exportFramesIndividually(
+                {
+                    frames: generatedFrames,
+                    prefix: exportOptions.prefix,
+                    padding: exportOptions.padding,
+                },
+                (progress) => setExporting(true, progress)
+            );
+        } finally {
+            setExporting(false, 0);
+        }
+    }, [generatedFrames, exportOptions, setExporting]);
+
     if (!isOpen) return null;
+
+    // Estimate ZIP size
+    const estimatedSize = generatedFrames.length > 0 ? formatBytes(estimateZipSize(generatedFrames)) : null;
 
     return (
         <div className="foundry-overlay">
@@ -646,6 +838,7 @@ export const ShapeGaugeFoundry: React.FC = () => {
                         <ColorsEditor />
                         <GradientEditor />
                         <GlowEditor />
+                        <DropShadowEditor />
                         <EffectsEditor />
                         <ColorZonesEditor />
                     </div>
@@ -700,6 +893,7 @@ export const ShapeGaugeFoundry: React.FC = () => {
                             <div className="foundry-frames-result">
                                 <div className="foundry-frames-count">
                                     {generatedFrames.length} frames generated
+                                    {estimatedSize && <span style={{ color: '#888', marginLeft: '8px' }}>({estimatedSize})</span>}
                                 </div>
                                 <div className="foundry-frames-preview">
                                     {generatedFrames.filter((_, i) => i % Math.ceil(generatedFrames.length / 8) === 0).slice(0, 8).map((frame, i) => (
@@ -724,6 +918,51 @@ export const ShapeGaugeFoundry: React.FC = () => {
                                 >
                                     Add to Canvas
                                 </Button>
+                            </div>
+
+                        )}
+
+                        {/* AIDA64 Export Section */}
+                        {generatedFrames.length > 0 && (
+                            <div className="foundry-param-group" style={{ marginTop: '16px' }}>
+                                <div className="foundry-param-group-title">Export for AIDA64</div>
+                                <div className="foundry-param-row">
+                                    <Input
+                                        label="Filename Prefix"
+                                        type="text"
+                                        value={exportOptions.prefix}
+                                        onChange={(v) => updateExportOptions({ prefix: v || 'frame' })}
+                                    />
+                                    <Input
+                                        label="Padding"
+                                        type="number"
+                                        value={exportOptions.padding}
+                                        onChange={(v) => updateExportOptions({ padding: parseInt(v) || 3 })}
+                                        min={1}
+                                        max={5}
+                                    />
+                                </div>
+                                <div style={{ fontSize: '10px', color: '#666', marginBottom: '8px' }}>
+                                    Output: {exportOptions.prefix}_001.png, {exportOptions.prefix}_002.png, ...
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={handleExportZip}
+                                        disabled={isExporting}
+                                        fullWidth
+                                    >
+                                        {isExporting ? `Exporting... ${Math.round(exportProgress * 100)}%` : 'Download ZIP'}
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={handleExportIndividual}
+                                        disabled={isExporting}
+                                        fullWidth
+                                    >
+                                        Individual PNGs
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </div>

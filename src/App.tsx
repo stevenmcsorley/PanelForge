@@ -13,10 +13,10 @@ import {
   SensorPanel,
   ExportPanel,
 } from '@/components/editor';
-import { GaugeFoundry, ClockFoundry, LcdGaugeFoundry, ShapeGaugeFoundry } from '@/components/foundry';
+import { GaugeFoundry, ClockFoundry, LcdGaugeFoundry, ShapeGaugeFoundry, StaticShapeFoundry } from '@/components/foundry';
 import { useKeyboardShortcuts } from '@/hooks';
 import { sensorEngine } from '@/engine';
-import { useCanvasStore, useFoundryStore, useClockFoundryStore, useLcdGaugeFoundryStore, useShapeGaugeFoundryStore } from '@/stores';
+import { useCanvasStore, useFoundryStore, useClockFoundryStore, useLcdGaugeFoundryStore, useShapeGaugeFoundryStore, useStaticShapeFoundryStore } from '@/stores';
 import './App.css';
 
 const App: React.FC = () => {
@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const { openClockFoundry } = useClockFoundryStore();
   const { openLcdGaugeFoundry } = useLcdGaugeFoundryStore();
   const { openShapeGaugeFoundry } = useShapeGaugeFoundryStore();
+  const { openStaticShapeFoundry } = useStaticShapeFoundryStore();
 
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
@@ -52,6 +53,7 @@ const App: React.FC = () => {
       <ClockFoundry />
       <LcdGaugeFoundry />
       <ShapeGaugeFoundry />
+      <StaticShapeFoundry />
 
       {/* Header */}
       <header className="app-header">
@@ -74,6 +76,12 @@ const App: React.FC = () => {
           </button>
           <button className="app-tool-btn" onClick={openShapeGaugeFoundry} title="Shape Gauge Foundry">
             Shape Gauge
+          </button>
+          <button className="app-tool-btn" onClick={openStaticShapeFoundry} title="Static Shape Foundry">
+            Structure
+          </button>
+          <button className="app-tool-btn" onClick={openStaticShapeFoundry} title="Static Shape Foundry">
+            Structure
           </button>
         </div>
 
@@ -101,6 +109,10 @@ const App: React.FC = () => {
         {/* Canvas area */}
         <main className="canvas-area" onWheel={handleWheel}>
           <div className="canvas-wrapper">
+            {/* Canvas Frame 
+                 We remove rigid sizing here to allow PanelCanvas (Grid) to occupy the full space.
+                 The actual Stage size is handled inside PanelCanvas, and Panning moves it around.
+              */}
             <div
               className="canvas-frame"
               style={{

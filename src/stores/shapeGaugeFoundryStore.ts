@@ -67,10 +67,18 @@ export interface GlowParams {
     spread: number;         // 0-20
 }
 
+export interface InsetParams {
+    enabled: boolean;
+    color: string;
+    opacity: number;
+    distance: number;
+    blur: number;
+}
+
 export interface EffectsParams {
     glossy: boolean;        // Adds highlight reflection
     metallic: boolean;      // Metallic sheen effect
-    inset: boolean;         // Recessed/embossed look
+    inset: InsetParams;     // Recessed/embossed look
 }
 
 // ============================================================================
@@ -91,6 +99,7 @@ export interface ShapeParams {
     // Shape
     shapeType: ShapeType;
     fillMode: FillMode;
+    reversed: boolean;
 
     // Dimensions (scaled to output)
     thickness: number;      // Bar height or arc thickness (10-100)
@@ -122,6 +131,18 @@ export interface ShapeParams {
     // Value zones (Pro)
     colorZones: ColorZone[];
     useColorZones: boolean;
+
+    // Drop Shadow
+    dropShadow: DropShadowParams;
+}
+
+export interface DropShadowParams {
+    enabled: boolean;
+    color: string;
+    opacity: number;        // 0-100
+    angle: number;          // 0-360
+    distance: number;       // 0-50
+    blur: number;           // 0-50
 }
 
 // ============================================================================
@@ -154,6 +175,7 @@ export interface ValueLabelParams {
     showUnit: boolean;
     unit: string;
     decimals: number;
+    format: string;
 }
 
 // ============================================================================
@@ -184,6 +206,11 @@ export interface ShapeGaugeFoundryState {
     isGenerating: boolean;
     generationProgress: number;
 
+    // Export state
+    exportOptions: { prefix: string; padding: number };
+    isExporting: boolean;
+    exportProgress: number;
+
     // Actions
     openShapeGaugeFoundry: () => void;
     openShapeGaugeFoundryForWidget: (widgetId: string, width: number, height: number, savedParams?: Record<string, unknown> | null) => void;
@@ -192,6 +219,8 @@ export interface ShapeGaugeFoundryState {
     setOutputSize: (width: number, height: number) => void;
     setFrameCount: (count: number) => void;
     setTransparentBackground: (enabled: boolean) => void;
+    updateExportOptions: (options: { prefix?: string; padding?: number }) => void;
+    setExporting: (isExporting: boolean, progress?: number) => void;
 
     // Shape params updates
     updateShapeParams: (params: Partial<ShapeParams>) => void;
@@ -204,6 +233,7 @@ export interface ShapeGaugeFoundryState {
     addColorZone: (zone: ColorZone) => void;
     removeColorZone: (index: number) => void;
     updateColorZone: (index: number, zone: Partial<ColorZone>) => void;
+    updateDropShadow: (params: Partial<DropShadowParams>) => void;
 
     // Scale/label updates
     updateScaleParams: (params: Partial<ScaleParams>) => void;
@@ -240,7 +270,13 @@ const DEFAULT_GLOW: GlowParams = {
 const DEFAULT_EFFECTS: EffectsParams = {
     glossy: true,
     metallic: false,
-    inset: false,
+    inset: {
+        enabled: false,
+        color: '#000000',
+        opacity: 50,
+        distance: 2,
+        blur: 4,
+    },
 };
 
 const DEFAULT_COLOR_ZONES: ColorZone[] = [
@@ -249,9 +285,19 @@ const DEFAULT_COLOR_ZONES: ColorZone[] = [
     { threshold: 100, color: '#ff0000' },
 ];
 
+const DEFAULT_DROP_SHADOW: DropShadowParams = {
+    enabled: false,
+    color: '#000000',
+    opacity: 50,
+    angle: 45,
+    distance: 10,
+    blur: 5,
+};
+
 const DEFAULT_SHAPE_PARAMS: ShapeParams = {
     shapeType: 'horizontal_bar',
     fillMode: 'smooth',
+    reversed: false,
     thickness: 30,
     cornerRadius: 8,
     startAngle: -135,
@@ -267,6 +313,7 @@ const DEFAULT_SHAPE_PARAMS: ShapeParams = {
     effects: { ...DEFAULT_EFFECTS },
     colorZones: [...DEFAULT_COLOR_ZONES],
     useColorZones: false,
+    dropShadow: { ...DEFAULT_DROP_SHADOW },
 };
 
 const DEFAULT_SCALE_PARAMS: ScaleParams = {
@@ -282,15 +329,16 @@ const DEFAULT_SCALE_PARAMS: ScaleParams = {
     maxLabel: '100',
 };
 
-const DEFAULT_VALUE_LABEL_PARAMS: ValueLabelParams = {
+const DEFAULT_VALUE_LABEL: ValueLabelParams = {
     enabled: false,
-    position: 'center',
-    fontSize: 24,
-    fontFamily: 'Arial',
+    fontFamily: 'Inter',
+    fontSize: 48,
     fontColor: '#ffffff',
+    format: '{value|fixed(0)}', // Default format
     showUnit: true,
     unit: '%',
     decimals: 0,
+    position: 'center',
 };
 
 // ============================================================================
@@ -310,11 +358,15 @@ export const useShapeGaugeFoundryStore = create<ShapeGaugeFoundryState>((set) =>
 
     shapeParams: { ...DEFAULT_SHAPE_PARAMS },
     scaleParams: { ...DEFAULT_SCALE_PARAMS },
-    valueLabelParams: { ...DEFAULT_VALUE_LABEL_PARAMS },
+    valueLabelParams: { ...DEFAULT_VALUE_LABEL },
 
     generatedFrames: [],
     isGenerating: false,
     generationProgress: 0,
+
+    exportOptions: { prefix: 'gauge', padding: 3 },
+    isExporting: false,
+    exportProgress: 0,
 
     // Actions
     openShapeGaugeFoundry: () => set({ isOpen: true, editingWidgetId: null }),
@@ -331,7 +383,7 @@ export const useShapeGaugeFoundryStore = create<ShapeGaugeFoundryState>((set) =>
                 useTransparentBackground: savedParams.useTransparentBackground as boolean ?? true,
                 shapeParams: savedParams.shapeParams as ShapeParams || DEFAULT_SHAPE_PARAMS,
                 scaleParams: savedParams.scaleParams as ScaleParams || DEFAULT_SCALE_PARAMS,
-                valueLabelParams: savedParams.valueLabelParams as ValueLabelParams || DEFAULT_VALUE_LABEL_PARAMS,
+                valueLabelParams: savedParams.valueLabelParams as ValueLabelParams || DEFAULT_VALUE_LABEL,
             };
         }
 
@@ -356,6 +408,12 @@ export const useShapeGaugeFoundryStore = create<ShapeGaugeFoundryState>((set) =>
     setFrameCount: (frameCount) => set({ frameCount: Math.max(16, Math.min(128, frameCount)) }),
 
     setTransparentBackground: (useTransparentBackground) => set({ useTransparentBackground, generatedFrames: [] }),
+
+    updateExportOptions: (options) => set((state) => ({
+        exportOptions: { ...state.exportOptions, ...options }
+    })),
+
+    setExporting: (isExporting, progress = 0) => set({ isExporting, exportProgress: progress }),
 
     // Shape params updates
     updateShapeParams: (params) => set((state) => ({
@@ -438,6 +496,13 @@ export const useShapeGaugeFoundryStore = create<ShapeGaugeFoundryState>((set) =>
         },
     })),
 
+    updateDropShadow: (params) => set((state) => ({
+        shapeParams: {
+            ...state.shapeParams,
+            dropShadow: { ...state.shapeParams.dropShadow, ...params },
+        },
+    })),
+
     // Scale/label updates
     updateScaleParams: (params) => set((state) => ({
         scaleParams: { ...state.scaleParams, ...params },
@@ -459,9 +524,12 @@ export const useShapeGaugeFoundryStore = create<ShapeGaugeFoundryState>((set) =>
         useTransparentBackground: true,
         shapeParams: { ...DEFAULT_SHAPE_PARAMS },
         scaleParams: { ...DEFAULT_SCALE_PARAMS },
-        valueLabelParams: { ...DEFAULT_VALUE_LABEL_PARAMS },
+        valueLabelParams: { ...DEFAULT_VALUE_LABEL },
         generatedFrames: [],
         isGenerating: false,
         generationProgress: 0,
+        exportOptions: { prefix: 'gauge', padding: 3 },
+        isExporting: false,
+        exportProgress: 0,
     }),
 }));
